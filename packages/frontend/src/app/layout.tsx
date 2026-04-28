@@ -1,12 +1,14 @@
 /**
  * @file layout.tsx
  * @description Root layout for the very-princess Next.js application.
- * 
- * This is a minimal root layout that delegates to the locale-specific layouts.
+ *
+ * Analytics: Plausible (privacy-first, GDPR-compliant, no cookies).
+ * Custom events are fired via window.plausible() — see lib/analytics.ts.
  */
 
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -39,6 +41,9 @@ export const metadata: Metadata = {
   description:
     "A decentralized multi-organization payout registry built on Stellar Soroban. Track and claim contributor payouts transparently on-chain.",
   keywords: ["Stellar", "Soroban", "DeFi", "Open Source", "Drips", "Payouts"],
+  manifest: "/manifest.json",
+  themeColor: "#6366f1",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent" },
   openGraph: {
     siteName: "very-princess",
     title: "very-princess — Stellar Payout Registry",
@@ -60,8 +65,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ?? "";
+
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/* Plausible — privacy-first analytics, no cookies, GDPR-compliant */}
+        {plausibleDomain && (
+          <Script
+            defer
+            data-domain={plausibleDomain}
+            src="https://plausible.io/js/script.js"
+            strategy="afterInteractive"
+          />
+        )}
+      </head>
       <body className="min-h-screen bg-stellar-blue font-sans text-white antialiased">
         <WalletProvider>
           <AuthProvider>
@@ -72,7 +90,7 @@ export default function RootLayout({
             />
             {/* Page content */}
             <div className="relative">{children}</div>
-            
+
             {/* Toast notifications */}
             <Toaster
               position="top-right"
@@ -82,38 +100,14 @@ export default function RootLayout({
               theme="dark"
               toastOptions={{
                 style: {
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  color: 'white',
+                  background: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "white",
                 },
               }}
             />
           </AuthProvider>
-          {/* Starfield ambient background */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none fixed inset-0 bg-hero-pattern"
-          />
-          {/* Page content */}
-          <div className="relative">{children}</div>
-          
-          {/* Toast notifications */}
-          <Toaster
-            position="top-right"
-            expand={false}
-            richColors
-            closeButton
-            theme="dark"
-            toastOptions={{
-              style: {
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: 'white',
-              },
-            }}
-          />
         </WalletProvider>
       </body>
     </html>
