@@ -228,6 +228,18 @@ impl PayoutRegistry {
     // Organisation Management & Funding
     // ─────────────────────────────────────────────────────────────────────────
 
+    /**
+     * Register a new organization on the contract.
+     * 
+     * This function generates a deterministic organization ID based on the admin's
+     * address and the organization's name. It initializes the organization's
+     * data structure, budget, and maintainer list in persistent storage.
+     * 
+     * @param env - The Soroban execution environment.
+     * @param admin - The Stellar address of the initial administrator.
+     * @param name - The human-readable name of the organization.
+     * @returns The generated 32-byte organization ID.
+     */
     pub fn register_org(env: Env, admin: Address, name: String) -> BytesN<32> {
         admin.require_auth();
 

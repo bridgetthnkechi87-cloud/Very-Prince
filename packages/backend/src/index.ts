@@ -148,6 +148,17 @@ await server.register(swaggerUi, {
 
 // ─── Route Registration ───────────────────────────────────────────────────────
 
+/**
+ * All contract-related routes are mounted under versioned prefixes.
+ * 
+ * Versioning Strategy:
+ * - /api/v1/...: Standard versioned API endpoints.
+ * - /api/stats/...: Unversioned endpoints for global platform statistics.
+ * - /api/events/...: Unversioned endpoints for event stream consumption.
+ * 
+ * Each route plugin is responsible for its own validation schemas and controllers.
+ */
+
 // All contract-related routes are mounted under /api/v1/contract.
 // The v1 prefix supports future API versioning without breaking changes.
 await server.register(contractRoutes, { prefix: "/api/v1/contract" });
@@ -162,15 +173,27 @@ await server.register(webhookRoutes, { prefix: "/api/org/:orgId/webhook" });
 await server.register(apiKeyRoutes, { prefix: "/api/org" });
 
 // ─── Notification Routes ──────────────────────────────────────────────────────
+
+/**
+ * Notification management endpoints.
+ * 
+ * These endpoints handle user preferences for off-chain notifications (Email, etc.)
+ * based on on-chain activity.
+ */
 server.post("/api/v1/notifications/preferences", notificationController.saveEmailPreference);
 server.delete("/api/v1/notifications/preferences", notificationController.deleteEmailPreference);
 server.get("/api/v1/notifications/unsubscribe", notificationController.unsubscribe);
+
+/**
+ * System Health & Diagnostics
+ */
 
 // Health check — used by CI, load balancers, and monitoring.
 server.get("/health", async () => ({
   status: "ok",
   version: "0.1.0",
   timestamp: new Date().toISOString(),
+  uptime: process.uptime(), // Added uptime for diagnostic purposes
 }));
 
 // Indexer status endpoint

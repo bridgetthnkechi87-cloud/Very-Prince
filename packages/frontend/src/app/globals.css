@@ -70,7 +70,15 @@
 
 /* ── Components ─────────────────────────────────────────────────────────────── */
 @layer components {
-  /* Glassmorphism card — reused across the dashboard */
+  /**
+   * Glassmorphism Card
+   * 
+   * A modern UI primitive that uses a combination of semi-transparent backgrounds,
+   * subtle borders, and background blurs to create a "frosted glass" effect.
+   * 
+   * Usage:
+   * <div className="glass-card">...</div>
+   */
   .glass-card {
     border-radius: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -78,6 +86,15 @@
     backdrop-filter: blur(4px);
   }
 
+  /**
+   * Glassmorphism Panel
+   * 
+   * A more pronounced glass effect than the card, with higher opacity and
+   * stronger blur. Ideal for modals, sidebars, or primary UI elements.
+   * 
+   * Usage:
+   * <div className="glass-panel">...</div>
+   */
   .glass-panel {
     border-radius: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -88,11 +105,17 @@
   @supports not (backdrop-filter: blur(0)) {
     .glass-card,
     .glass-panel {
+      /* Fallback for browsers that do not support backdrop-filter */
       background-color: rgba(255, 255, 255, 0.14);
     }
   }
 
-  /* Gradient text utility */
+  /**
+   * Gradient Text Utility
+   * 
+   * Applies a linear gradient to text content using the brand's primary 
+   * purple and teal colors.
+   */
   .gradient-text {
     background: linear-gradient(to right, var(--color-stellar-purple), var(--color-stellar-teal));
     -webkit-background-clip: text;

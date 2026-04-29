@@ -4,6 +4,18 @@
  *
  * This service handles the generation and storage of cryptographic nonces for
  * secure wallet-based authentication using the challenge-response pattern.
+ * 
+ * ## Workflow
+ * 1. Client requests a nonce via `GET /auth/nonce?publicKey=G...`.
+ * 2. Service generates a random nonce, stores it in Redis (TTL 5m), and returns it.
+ * 3. Client signs a standard SIWS message containing the nonce.
+ * 4. Client submits the signature via `POST /auth/verify`.
+ * 5. Server verifies the signature against the stored nonce.
+ * 
+ * ## Security Properties
+ * - Replay Protection: Nonces are single-use and expire quickly.
+ * - Binding: The signature is bound to a specific public key and domain.
+ * - Cryptography: Uses Node.js `crypto` module for secure random generation.
  */
 
 import { randomBytes } from "crypto";
@@ -11,29 +23,50 @@ import { safeSet, safeGet } from "./cache.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+/**
+ * Response structure for the nonce generation endpoint.
+ */
 export interface NonceResponse {
+  /** The formatted SIWS message to be signed by the user's wallet. */
   message: string;
+  /** The raw hex-encoded nonce for verification. */
   nonce: string;
+  /** Unix timestamp (seconds) when this nonce will expire. */
   expiresAt: number;
 }
 
+/**
+ * Internal representation of a nonce stored in the cache.
+ */
 export interface StoredNonce {
+  /** The raw nonce value. */
   nonce: string;
+  /** The public key associated with this nonce. */
   publicKey: string;
+  /** Unix timestamp when the record should be evicted. */
   expiresAt: number;
 }
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 
+/**
+ * AuthService handles the business logic for wallet-based authentication.
+ */
 export class AuthService {
-  private readonly NONCE_LENGTH = 32; // bytes
-  private readonly NONCE_TTL_SECONDS = 5 * 60; // 5 minutes
+  /** Length of the random nonce in bytes (results in 64 hex chars). */
+  private readonly NONCE_LENGTH = 32; 
+  /** Time-to-live for a generated nonce (5 minutes). */
+  private readonly NONCE_TTL_SECONDS = 5 * 60; 
+  /** The domain used in the SIWS message format. */
   private readonly DOMAIN = "tradeflow.app";
 
   /**
    * Generate a cryptographically secure random nonce.
    * 
-   * @returns A hex-encoded random string
+   * Uses `crypto.randomBytes` to ensure high entropy and resistance to
+   * predictable value attacks.
+   * 
+   * @returns A hex-encoded random string (64 characters)
    */
   private generateSecureNonce(): string {
     return randomBytes(this.NONCE_LENGTH).toString("hex");

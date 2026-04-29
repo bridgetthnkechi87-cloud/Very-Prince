@@ -69,6 +69,21 @@ export interface FreighterState {
 /**
  * Returns the current Freighter wallet state and interaction callbacks.
  * This hook now uses the centralized WalletContext for better state management.
+ * 
+ * ## State Synchronization
+ * The hook synchronizes internal state with the centralized `WalletContext`. 
+ * It also handles the detection of the Freighter browser extension on mount
+ * and monitors the connection status.
+ * 
+ * ## Security Notes
+ * - The hook does not store secret keys.
+ * - All signing operations are delegated to the Freighter extension.
+ * - Verification of signed transactions should always be performed on the backend.
+ * 
+ * ## Implementation Details
+ * - Uses `useEffect` to detect the `freighter` object on the `window` scope.
+ * - Leverages `@stellar/freighter-api` for communication with the extension.
+ * - Provides a unified interface for connection, disconnection, and signing.
  */
 export function useFreighter(): FreighterState {
   const [isInitialized, setIsInitialized] = useState(false);
