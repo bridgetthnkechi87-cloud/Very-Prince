@@ -1,14 +1,12 @@
 /**
  * @file provider.tsx
- * @description tRPC React Query provider for the very-princess frontend.
+ * @description tRPC React Query provider for the Very-prince frontend.
  */
 
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { httpBatchLink } from '@trpc/client';
-import React, { useState } from 'react';
-import { trpcClient } from './client';
+import React from 'react';
 
 // Create a singleton query client
 let queryClient: QueryClient;

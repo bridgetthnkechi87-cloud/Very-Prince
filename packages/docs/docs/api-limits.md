@@ -6,7 +6,7 @@ sidebar_label: API Limits
 
 # Understanding API Limits
 
-The very-princess REST API enforces rate limits to ensure fair usage and protect the Soroban RPC from overload.
+The very-prince REST API enforces rate limits to ensure fair usage and protect the Soroban RPC from overload.
 
 ## Default Rate Limits
 

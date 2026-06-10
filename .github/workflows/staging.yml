@@ -1,4 +1,4 @@
-name: Deploy to Staging
+﻿name: Deploy to Staging
 
 on:
   push:
@@ -64,7 +64,7 @@ jobs:
           scope: ${{ secrets.VERCEL_ORG_ID }}
           working-directory: packages/frontend
           vercel-args: '--prod'
-          alias-domains: very-princess-staging.vercel.app
+          alias-domains: Very-prince-staging.vercel.app
 
   build-and-deploy-backend:
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
-            cd /opt/very-princess
+            cd /opt/Very-prince
             docker-compose -f docker-compose.staging.yml pull
             docker-compose -f docker-compose.staging.yml up -d
             docker system prune -f

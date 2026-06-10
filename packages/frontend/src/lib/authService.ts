@@ -4,7 +4,7 @@
  */
 
 import { toast } from "sonner";
-import { freighterApi } from "@stellar/freighter-api";
+import freighterApi from "@stellar/freighter-api";
 
 const BACKEND_URL = process.env["NEXT_PUBLIC_BACKEND_URL"] ?? "http://localhost:3001";
 
@@ -46,16 +46,19 @@ export async function getNonce(): Promise<string> {
 export async function signNonce(nonce: string): Promise<{ signature: string; publicKey: string }> {
   try {
     // Get user's public key from Freighter
-    const { publicKey } = await freighterApi.getPublicKey();
+    const publicKey = await freighterApi.getPublicKey();
     
     if (!publicKey) {
       throw new Error("No public key found. Please connect your Freighter wallet.");
     }
     
     // Sign the nonce message
-    const signature = await freighterApi.signMessage(nonce, {
-      publicKey,
-    });
+    const freighter = (window as any).freighter;
+    if (!freighter?.signMessage) {
+      throw new Error("Message signing not supported by this wallet");
+    }
+
+    const signature = await freighter.signMessage(nonce);
     
     if (!signature) {
       throw new Error("Failed to sign message. Please try again.");

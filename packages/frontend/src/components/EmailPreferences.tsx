@@ -2,11 +2,37 @@
 
 import { useState } from "react";
 import { useUnifiedWallet } from "../hooks/useUnifiedWallet";
-import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 
-export function EmailPreferences() {
-  const { t } = useTranslation();
+interface EmailPreferencesProps {
+  dictionary?: {
+    email_preferences: string;
+    email_description: string;
+    email_label: string;
+    email_placeholder: string;
+    save_email: string;
+    saving: string;
+    remove_email: string;
+    verify_ownership: string;
+    verify_description: string;
+    opted_in: string;
+  };
+}
+
+const defaultDictionary = {
+  email_preferences: "Email Preferences",
+  email_description: "Get notified instantly when an organization allocates funds to your wallet.",
+  email_label: "Email Address",
+  email_placeholder: "maintainer@example.com",
+  save_email: "Save & Opt-in",
+  saving: "Verifying & Saving...",
+  remove_email: "Remove Email",
+  verify_ownership: "Verification Required",
+  verify_description: "To prevent spam, you must sign a message with your wallet to prove ownership before saving your email.",
+  opted_in: "You are currently opted in to email notifications."
+};
+
+export function EmailPreferences({ dictionary = defaultDictionary }: EmailPreferencesProps) {
   const { publicKey, signAuthMessage } = useUnifiedWallet();
   const [email, setEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -16,7 +42,7 @@ export function EmailPreferences() {
     
     setIsSaving(true);
     try {
-      const message = `Opt-in to Very-Princess notifications for wallet: ${publicKey}\nTimestamp: ${Date.now()}`;
+      const message = `Opt-in to Very-prince notifications for wallet: ${publicKey}\nTimestamp: ${Date.now()}`;
       const signature = await signAuthMessage(message);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/preferences`, {
@@ -32,7 +58,7 @@ export function EmailPreferences() {
 
       if (!response.ok) throw new Error("Failed to save");
 
-      toast.success(t("settings.opted_in"));
+      toast.success(dictionary.opted_in);
     } catch (error) {
       toast.error("Failed to verify ownership or save email.");
     } finally {
@@ -70,26 +96,26 @@ export function EmailPreferences() {
 
   return (
     <div className="glass-card p-6 rounded-xl border border-white/10 mt-6">
-      <h2 className="text-xl font-semibold mb-2">{t("settings.email_preferences")}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t("settings.email_description")}</p>
+      <h2 className="text-xl font-semibold mb-2">{dictionary.email_preferences}</h2>
+      <p className="text-gray-400 text-sm mb-6">{dictionary.email_description}</p>
 
       <div className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-            {t("settings.email_label")}
+            {dictionary.email_label}
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={t("settings.email_placeholder")}
+            placeholder={dictionary.email_placeholder}
             className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
           />
         </div>
 
         <div className="bg-purple-500/5 border border-purple-500/20 p-4 rounded-lg">
           <p className="text-xs text-purple-300">
-            <strong>{t("settings.verify_ownership")}:</strong> {t("settings.verify_description")}
+            <strong>{dictionary.verify_ownership}:</strong> {dictionary.verify_description}
           </p>
         </div>
 
@@ -98,7 +124,7 @@ export function EmailPreferences() {
           disabled={isSaving || !email}
           className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg transition-all"
         >
-          {isSaving ? t("settings.saving") : t("settings.save_email")}
+          {isSaving ? dictionary.saving : dictionary.save_email}
         </button>
       </div>
       
@@ -108,7 +134,7 @@ export function EmailPreferences() {
           onClick={handleDelete}
           disabled={isSaving}
         >
-          {t("settings.remove_email")}
+          {dictionary.remove_email}
         </button>
       </div>
     </div>

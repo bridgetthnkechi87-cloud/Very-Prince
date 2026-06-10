@@ -14,7 +14,7 @@
  */
 
 import { Redis } from "ioredis";
-import { env } from "../config/env.js";
+
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -38,6 +38,10 @@ export const redis = new Redis(REDIS_URL, {
     if (times > 3) return null; 
     return Math.min(times * 100, 3000);
   },
+});
+
+export const bullRedisConnection = new Redis(REDIS_URL, {
+  maxRetriesPerRequest: null,
 });
 
 // ─── Event Listeners ─────────────────────────────────────────────────────────

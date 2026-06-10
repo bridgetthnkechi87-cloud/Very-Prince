@@ -94,7 +94,6 @@ export function useFreighter(): FreighterState {
     publicKey,
     isLoading,
     error,
-    network,
     connectWallet,
     disconnectWallet,
     signTransaction: signTx,

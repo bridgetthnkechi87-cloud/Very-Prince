@@ -19,9 +19,9 @@
   --color-stellar-teal:   #00CDCC;
   --color-stellar-light:  #E8ECF9;
 
-  /* Font variables (populated by next/font) */
-  --font-inter:           'Inter', system-ui, sans-serif;
-  --font-jetbrains-mono:  'JetBrains Mono', Menlo, monospace;
+  /* Font variables (system-ui and standard fallbacks for offline usage) */
+  --font-inter:           'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-jetbrains-mono:  'JetBrains Mono', Consolas, Monaco, Menlo, monospace;
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */

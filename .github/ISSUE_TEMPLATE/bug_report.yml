@@ -1,5 +1,5 @@
-name: "🐛 Bug Report"
-description: "Report a reproducible bug in the very-princess codebase."
+﻿name: "🐛 Bug Report"
+description: "Report a reproducible bug in the Very-prince codebase."
 title: "[Bug]: "
 labels: ["bug", "needs-triage"]
 assignees: []

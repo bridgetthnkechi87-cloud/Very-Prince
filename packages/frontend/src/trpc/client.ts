@@ -1,9 +1,9 @@
 /**
  * @file client.ts
- * @description tRPC client configuration for the very-princess frontend.
+ * @description tRPC client configuration for the Very-prince frontend.
  */
 
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/trpc/router';
 
 // Get the backend URL from environment variables
@@ -23,7 +23,7 @@ const getBaseUrl = () => {
 };
 
 // Create the tRPC client
-export const trpcClient = createTRPCClient<AppRouter>({
+export const trpcClient = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${getBaseUrl()}/trpc`,

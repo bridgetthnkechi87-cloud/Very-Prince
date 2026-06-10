@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "name": "very-princess-frontend",
+  "name": "very-prince-frontend",
   "buildCommand": "cd packages/frontend && npm run build",
   "outputDirectory": "packages/frontend/.next",
   "installCommand": "npm install",
   "ignoreBuildStep": "bash scripts/vercel-ignore-build.sh",
   "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://api-staging.veryprincess.com"
+    "NEXT_PUBLIC_API_URL": "https://api-staging.veryprince.com"
   },
   "git": {
     "deploymentEnabled": {

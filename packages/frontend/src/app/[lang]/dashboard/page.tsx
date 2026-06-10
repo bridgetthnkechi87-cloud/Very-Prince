@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { WalletButton } from "@/components/WalletButton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -19,8 +18,7 @@ interface DashboardPageProps {
 // ── Inner Component (uses useSearchParams) ────────────────────────────────────
 
 function DashboardPageInner({ dictionary, lang }: { dictionary: Dictionary; lang: Locale }) {
-  const { isConnected, publicKey } = useFreighter();
-  const searchParams = useSearchParams();
+  const { isConnected } = useFreighter();
 
   // ── State ─────────────────────────────────────────────────────────────────
   const [orgIdInput, setOrgIdInput] = useState("");
@@ -62,7 +60,7 @@ function DashboardPageInner({ dictionary, lang }: { dictionary: Dictionary; lang
               <span className="text-sm font-bold text-white">VP</span>
             </div>
             <span className="text-sm font-semibold tracking-tight text-white">
-              very-princess
+              Very-prince
             </span>
             {/* Network badge */}
             <span className="badge border border-stellar-teal/30 bg-stellar-teal/10 text-stellar-teal">

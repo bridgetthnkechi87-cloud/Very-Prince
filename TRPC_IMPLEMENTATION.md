@@ -1,6 +1,6 @@
-# tRPC Implementation for Very-Princess
+# tRPC Implementation for Very-Prince
 
-This document describes the end-to-end type safety implementation using tRPC in the Very-Princess Turborepo.
+This document describes the end-to-end type safety implementation using tRPC in the Very-Prince Turborepo.
 
 ## Overview
 

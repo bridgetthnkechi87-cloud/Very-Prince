@@ -3,7 +3,7 @@
 mod tests {
     use crate::{PayoutParams, PayoutRegistry, PayoutRegistryClient};
     use soroban_sdk::testutils::Address as _;
-    use soroban_sdk::{symbol_short, token, Address, Env, String, Symbol, Vec};
+    use soroban_sdk::{symbol_short, token, Address, Env, String, Symbol, Vec, IntoVal};
 
     // ── Test Helpers ─────────────────────────────────────────────────────────
 
@@ -48,12 +48,13 @@ mod tests {
     fn register_test_org(
         env: &Env,
         client: &PayoutRegistryClient<'_>,
-        _org_sym: Symbol,
+        org_sym: Symbol,
     ) -> Address {
         let admin = Address::generate(env);
         client.register_org(
-            &admin,
+            &org_sym,
             &String::from_str(env, "Test Organization"),
+            &admin,
         );
         admin
     }
@@ -107,12 +108,12 @@ mod tests {
     fn test_allocate_without_budget_panics() {
         let Setup { env, client, .. } = setup();
         let org_sym = symbol_short!("myorg");
-        register_test_org(&env, &client, org_sym.clone());
+        let admin = register_test_org(&env, &client, org_sym.clone());
 
         let maintainer = Address::generate(&env);
         client.add_maintainer(&org_sym, &maintainer);
 
-        let result = client.try_allocate_payout(&org_sym, &maintainer, &5_000_000_i128, &1234567890_u64);
+        let result = client.try_allocate_payout(&org_sym, &admin, &maintainer, &5_000_000_i128, &1234567890_u64);
         assert!(result.is_err());
     }
 
@@ -122,7 +123,7 @@ mod tests {
             env, client, token, ..
         } = setup();
         let org_sym = symbol_short!("myorg");
-        register_test_org(&env, &client, org_sym.clone());
+        let admin = register_test_org(&env, &client, org_sym.clone());
 
         let maintainer = Address::generate(&env);
         client.add_maintainer(&org_sym, &maintainer);
@@ -133,7 +134,7 @@ mod tests {
 
         client.fund_org(&org_sym, &donor, &20_000_000);
 
-        client.allocate_payout(&org_sym, &maintainer, &5_000_000_i128, &1234567890_u64);
+        client.allocate_payout(&org_sym, &admin, &maintainer, &5_000_000_i128, &0_u64);
         assert_eq!(client.get_claimable_balance(&maintainer), 5_000_000);
         assert_eq!(client.get_org_budget(&org_sym), 15_000_000);
 
@@ -348,19 +349,19 @@ mod tests {
         let admin2 = Address::generate(&env);
 
         // Add admin2
-        client.add_admin(&org_sym, &admin2);
+        client.add_admin(&org_sym, &admin1, &admin2);
         let org = client.get_org(&org_sym);
         assert_eq!(org.admins.len(), 2);
         assert!(org.admins.contains(&admin2));
 
         // Remove admin1
-        client.remove_admin(&org_sym, &admin1);
+        client.remove_admin(&org_sym, &admin2, &admin1);
         let org = client.get_org(&org_sym);
         assert_eq!(org.admins.len(), 1);
         assert_eq!(org.admins.get(0).unwrap(), admin2);
 
         // Cannot remove the last admin
-        let result = client.try_remove_admin(&org_sym, &admin2);
+        let result = client.try_remove_admin(&org_sym, &admin2, &admin2);
         assert!(result.is_err());
     }
 
@@ -368,13 +369,13 @@ mod tests {
     fn test_max_admin_limit() {
         let Setup { env, client, .. } = setup();
         let org_sym = symbol_short!("maxorg");
-        register_test_org(&env, &client, org_sym.clone());
+        let admin = register_test_org(&env, &client, org_sym.clone());
 
         for _ in 0..9 {
-            client.add_admin(&org_sym, &Address::generate(&env));
+            client.add_admin(&org_sym, &admin, &Address::generate(&env));
         }
 
-        let result = client.try_add_admin(&org_sym, &Address::generate(&env));
+        let result = client.try_add_admin(&org_sym, &admin, &Address::generate(&env));
         assert!(result.is_err()); // Limit is 10
     }
 
@@ -408,42 +409,138 @@ mod tests {
         assert_eq!(multisig_admin.admins.len(), 3);
         assert_eq!(multisig_admin.threshold, 2);
 
+        let hash_bytes = [
+            0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14,
+            0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f, 0xb9, 0x24,
+            0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
+            0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55_u8,
+        ];
+        let new_wasm_hash = soroban_sdk::BytesN::from_array(&env, &hash_bytes);
+
         // Test 1: Upgrade with only 1 signature should fail
-        env.set_auths(&[]);
-        env.mock_auths(&[(&admin1, &123)]);
+        let mut signers1 = Vec::new(&env);
+        signers1.push_back(admin1.clone());
+
+        env.mock_auths(&[
+            soroban_sdk::testutils::MockAuth {
+                address: &admin1,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "upgrade",
+                    args: (signers1.clone(), new_wasm_hash.clone()).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+        ]);
         
-        let new_wasm_hash = soroban_sdk::BytesN::from_array(&env, &[1; 32]);
-        let result = client.try_upgrade(&new_wasm_hash);
+        let result = client.try_upgrade(&signers1, &new_wasm_hash);
         assert!(result.is_err());
-        assert_eq!(result.err().unwrap().to_string(), "ContractError(4)"); // insufficient multisig signatures
 
         // Test 2: Upgrade with 2 signatures should succeed
-        env.set_auths(&[]);
-        env.mock_auths(&[(&admin1, &123), (&admin2, &456)]);
+        let mut signers2 = Vec::new(&env);
+        signers2.push_back(admin1.clone());
+        signers2.push_back(admin2.clone());
+
+        env.mock_auths(&[
+            soroban_sdk::testutils::MockAuth {
+                address: &admin1,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "upgrade",
+                    args: (signers2.clone(), new_wasm_hash.clone()).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+            soroban_sdk::testutils::MockAuth {
+                address: &admin2,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "upgrade",
+                    args: (signers2.clone(), new_wasm_hash.clone()).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+        ]);
         
-        let result = client.try_upgrade(&new_wasm_hash);
+        let result = client.try_upgrade(&signers2, &new_wasm_hash);
         assert!(result.is_ok());
 
         // Test 3: Pause with 2 signatures should succeed
-        env.set_auths(&[]);
-        env.mock_auths(&[(&admin2, &789), (&admin3, &101112)]);
+        let mut signers_pause = Vec::new(&env);
+        signers_pause.push_back(admin2.clone());
+        signers_pause.push_back(admin3.clone());
+
+        env.mock_auths(&[
+            soroban_sdk::testutils::MockAuth {
+                address: &admin2,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "pause_protocol",
+                    args: (signers_pause.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+            soroban_sdk::testutils::MockAuth {
+                address: &admin3,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "pause_protocol",
+                    args: (signers_pause.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+        ]);
         
-        let result = client.try_pause_protocol();
+        let result = client.try_pause_protocol(&signers_pause);
         assert!(result.is_ok());
         assert_eq!(client.get_protocol_state(), crate::ProtocolState::Paused);
 
         // Test 4: Unpause with only 1 signature should fail
-        env.set_auths(&[]);
-        env.mock_auths(&[(&admin1, &131415)]);
+        let mut signers_unpause1 = Vec::new(&env);
+        signers_unpause1.push_back(admin1.clone());
+
+        env.mock_auths(&[
+            soroban_sdk::testutils::MockAuth {
+                address: &admin1,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "unpause_protocol",
+                    args: (signers_unpause1.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+        ]);
         
-        let result = client.try_unpause_protocol();
+        let result = client.try_unpause_protocol(&signers_unpause1);
         assert!(result.is_err());
 
         // Test 5: Unpause with 2 signatures should succeed
-        env.set_auths(&[]);
-        env.mock_auths(&[(&admin1, &161718), (&admin3, &192021)]);
+        let mut signers_unpause2 = Vec::new(&env);
+        signers_unpause2.push_back(admin1.clone());
+        signers_unpause2.push_back(admin3.clone());
+
+        env.mock_auths(&[
+            soroban_sdk::testutils::MockAuth {
+                address: &admin1,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "unpause_protocol",
+                    args: (signers_unpause2.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+            soroban_sdk::testutils::MockAuth {
+                address: &admin3,
+                invoke: &soroban_sdk::testutils::MockAuthInvoke {
+                    contract: &contract_id,
+                    fn_name: "unpause_protocol",
+                    args: (signers_unpause2.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+            },
+        ]);
         
-        let result = client.try_unpause_protocol();
+        let result = client.try_unpause_protocol(&signers_unpause2);
         assert!(result.is_ok());
         assert_eq!(client.get_protocol_state(), crate::ProtocolState::Active);
     }

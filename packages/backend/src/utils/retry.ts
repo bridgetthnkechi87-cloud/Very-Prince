@@ -48,7 +48,7 @@ export async function withRetry<T>(
       if (status === 429 && attempt < maxRetries - 1) {
         attempt++;
         // Calculate exponential delay: initialDelay * 2^(attempt-1)
-        const delay = Math.pow(2, attempt) * 1000; 
+        const delay = initialDelay * Math.pow(2, attempt - 1); 
         
         if (onRetry) {
           onRetry(error, attempt);

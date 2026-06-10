@@ -13,19 +13,19 @@
   },
   "navigation": {
     "dashboard": "ダッシュボード",
+    "leaderboard": "リーダーボード",
     "github": "GitHubで見る",
-    "stellar_network": "ステラーネットワーク",
-    "drips": "Drips"
+    "stellar_network": "ステラーネットワーク"
   },
   "home": {
-    "title": "very-princess — Stellar支払いレジストリ",
+    "title": "very-prince — Stellar支払いレジストリ",
     "description": "Stellar Soroban上に構築された、オープンソースメンテナー向けの分散型支払いレジストリ。Freighterウォレットを接続して支払いを表示・請求してください。",
     "hero_title": "オープンソース",
     "hero_subtitle": "支払いレジストリ",
     "hero_description": "複数組織のメンテナンス支払いのための透明なオンチェーンシステム。組織は登録・配分し、メンテナーは自身の貢献を自己保管 — すべてStellar上で。",
     "open_dashboard": "ダッシュボードを開く →",
-    "badge_text": "Stellar Soroban構築 · Drips Wave 4",
-    "footer_text": "very-princessはオープンソース — MITライセンス"
+    "badge_text": "Stellar Soroban構築",
+    "footer_text": "very-princeはオープンソース — MITライセンス"
   },
   "features": {
     "on_chain": {
@@ -42,7 +42,7 @@
     },
     "open_source": {
       "title": "オープンソース",
-      "description": "Dripsコミュニティ資金調達モデルのために構築。フォーク、拡張、貢献。CONTRIBUTING.md参照。"
+      "description": "オープンソースかつコミュニティ主導。フォーク、拡張、貢献。CONTRIBUTING.md参照。"
     }
   },
   "dashboard": {
@@ -80,5 +80,28 @@
     "english": "English",
     "spanish": "Español",
     "japanese": "日本語"
+  },
+  "settings": {
+    "email_preferences": "メール設定",
+    "email_description": "組織がウォレットに資金を配分したときに、即座に通知を受け取ります。",
+    "email_label": "メールアドレス",
+    "email_placeholder": "maintainer@example.com",
+    "save_email": "保存してオプトイン",
+    "saving": "確認中＆保存中...",
+    "remove_email": "メールアドレスを削除",
+    "verify_ownership": "確認が必要です",
+    "verify_description": "スパム防止のため、メールアドレスを保存する前にウォレットでメッセージに署名し、所有権を証明する必要があります。",
+    "opted_in": "現在、メール通知の受信に同意しています。"
+  },
+  "leaderboard": {
+    "title": "メンテナーリーダーボード",
+    "description": "エコシステム全体で最もアクティブで高収入のメンテナーを称えます。",
+    "rank": "ランク",
+    "maintainer": "メンテナー",
+    "earnings": "生涯獲得額",
+    "orgs_assisted": "支援した組織数",
+    "copy_address": "アドレスをコピー",
+    "address_copied": "アドレスをコピーしました！",
+    "total_payouts": "総支払い数"
   }
 }

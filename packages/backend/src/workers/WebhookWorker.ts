@@ -4,8 +4,8 @@
  */
 
 import { Worker, Job } from "bullmq";
-import { redis } from "../services/cache.js";
-import { webhookService, WebhookJobData } from "../services/WebhookService.js";
+import { bullRedisConnection } from "../services/cache.js";
+import { webhookService, WebhookJobData } from "../services/webhookService.js";
 import { webhookRepository } from "../repositories/WebhookRepository.js";
 
 export class WebhookWorker {
@@ -38,9 +38,9 @@ export class WebhookWorker {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "User-Agent": "Very-Princess-Webhook/1.0",
-              "X-Very-Princess-Signature": signature,
-              "X-Very-Princess-Timestamp": payload.timestamp,
+              "User-Agent": "Very-prince-Webhook/1.0",
+              "X-Very-prince-Signature": signature,
+              "X-Very-prince-Timestamp": payload.timestamp,
             },
             body: payloadString,
             // @ts-ignore - signal/timeout is available in native fetch
@@ -79,7 +79,7 @@ export class WebhookWorker {
         }
       },
       {
-        connection: redis,
+        connection: bullRedisConnection,
         concurrency: 5,
       }
     );

@@ -1,6 +1,6 @@
 /**
  * @file trpc-api.ts
- * @description Type-safe tRPC API client for very-princess.
+ * @description Type-safe tRPC API client for Very-prince.
  * 
  * This file provides tRPC-based alternatives to the REST API calls in api.ts,
  * with full end-to-end type safety between frontend and backend.
@@ -33,8 +33,7 @@ export interface PaginatedResponse<T> {
  */
 export async function fetchOrganizationWithTRPC(id: string): Promise<Org> {
   try {
-    const result = await trpcClient.organization.get.query({ id });
-    return result;
+    return await trpcClient.organization.get.query({ id });
   } catch (error) {
     throw new Error(`Failed to fetch organization: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -46,8 +45,7 @@ export async function fetchOrganizationWithTRPC(id: string): Promise<Org> {
  */
 export async function getContractStatusWithTRPC() {
   try {
-    const result = await trpcClient.contract.getStatus.query();
-    return result;
+    return await trpcClient.contract.getStatus.query();
   } catch (error) {
     throw new Error(`Failed to get contract status: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

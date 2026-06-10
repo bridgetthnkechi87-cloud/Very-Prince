@@ -13,19 +13,19 @@
   },
   "navigation": {
     "dashboard": "Panel de control",
+    "leaderboard": "Clasificación",
     "github": "Ver en GitHub",
-    "stellar_network": "Red Stellar",
-    "drips": "Drips"
+    "stellar_network": "Red Stellar"
   },
   "home": {
-    "title": "very-princess — Registro de Pagos Stellar",
+    "title": "very-prince — Registro de Pagos Stellar",
     "description": "Un registro de pagos descentralizado para mantenedores de código abierto, construido en Stellar Soroban. Conecta tu billetera Freighter para ver y reclamar tus pagos.",
     "hero_title": "Registro de Pagos",
     "hero_subtitle": "Código Abierto",
     "hero_description": "Un sistema transparente y en cadena para pagos de mantenimiento de múltiples organizaciones. Las organizaciones se registran, asignan y los mantenedores autocustodian sus contribuciones, todo en Stellar.",
     "open_dashboard": "Abrir Panel →",
-    "badge_text": "Construido en Stellar Soroban · Drips Wave 4",
-    "footer_text": "very-princess es código abierto — Licencia MIT"
+    "badge_text": "Construido en Stellar Soroban",
+    "footer_text": "very-prince es código abierto — Licencia MIT"
   },
   "features": {
     "on_chain": {
@@ -42,7 +42,7 @@
     },
     "open_source": {
       "title": "Código Abierto",
-      "description": "Construido para el modelo de financiamiento comunitario Drips. Fork, extiende, contribuye. Ver CONTRIBUTING.md."
+      "description": "Código abierto y orientado a la comunidad. Fork, extiende, contribuye. Ver CONTRIBUTING.md."
     }
   },
   "dashboard": {
@@ -80,5 +80,28 @@
     "english": "English",
     "spanish": "Español",
     "japanese": "日本語"
+  },
+  "settings": {
+    "email_preferences": "Preferencias de Correo",
+    "email_description": "Reciba notificaciones instantáneas cuando una organización asigne fondos a su billetera.",
+    "email_label": "Dirección de Correo Electrónico",
+    "email_placeholder": "mantenedor@ejemplo.com",
+    "save_email": "Guardar y Registrarse",
+    "saving": "Verificando y Guardando...",
+    "remove_email": "Eliminar Correo",
+    "verify_ownership": "Verificación Requerida",
+    "verify_description": "Para evitar el correo no deseado, debe firmar un mensaje con su billetera para demostrar la propiedad antes de guardar su correo electrónico.",
+    "opted_in": "Actualmente está registrado para recibir notificaciones por correo electrónico."
+  },
+  "leaderboard": {
+    "title": "Clasificación de Mantenedores",
+    "description": "Celebrando a los mantenedores más activos y con mayores ingresos en el ecosistema.",
+    "rank": "Rango",
+    "maintainer": "Mantenedor",
+    "earnings": "Ganancias Totales",
+    "orgs_assisted": "Organizaciones Ayudadas",
+    "copy_address": "Copiar Dirección",
+    "address_copied": "¡Dirección copiada!",
+    "total_payouts": "Pagos Totales"
   }
 }

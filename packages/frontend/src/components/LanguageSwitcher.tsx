@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Locale, defaultLocale, locales } from '@/lib/i18n';
+import { Locale, locales } from '@/lib/i18n';
 
 interface LanguageSwitcherProps {
   currentLocale: Locale;

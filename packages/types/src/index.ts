@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Shared TypeScript interfaces for the very-princess monorepo.
+ * @description Shared TypeScript interfaces for the very-prince monorepo.
  *
- * Both `@very-princess/backend` and `@very-princess/frontend` import from here
+ * Both `@very-prince/backend` and `@very-prince/frontend` import from here
  * to ensure a single source of truth for all Soroban-derived data shapes.
  */
 
@@ -98,9 +98,9 @@ export interface ContractCallResult {
 
 /**
  * Custom error codes returned by the PayoutRegistry contract.
- * These correspond to the PrincessError enum in the Rust contract.
+ * These correspond to the PrinceError enum in the Rust contract.
  */
-export enum PrincessError {
+export enum PrinceError {
   AlreadyInitialized = 1,
   EmptyAdminList = 2,
   InvalidThreshold = 3,
@@ -130,33 +130,33 @@ export enum PrincessError {
 }
 
 /**
- * Human-readable messages for PrincessError codes.
+ * Human-readable messages for PrinceError codes.
  */
-export const PrincessErrorMessage: Record<PrincessError, string> = {
-  [PrincessError.AlreadyInitialized]: "The contract is already initialized.",
-  [PrincessError.EmptyAdminList]: "The admin list cannot be empty.",
-  [PrincessError.InvalidThreshold]: "The multisig threshold is invalid.",
-  [PrincessError.ContractNotInitialized]: "The contract has not been initialized yet.",
-  [PrincessError.ProtocolPaused]: "The protocol is currently paused for maintenance.",
-  [PrincessError.InsufficientMultisigAuth]: "Insufficient signatures provided for this multisig action.",
-  [PrincessError.OrgAlreadyRegistered]: "This organization is already registered.",
-  [PrincessError.OrgNotFound]: "Organization not found.",
-  [PrincessError.NotAuthorized]: "You are not authorized to perform this action.",
-  [PrincessError.InvalidAmount]: "The provided amount must be positive.",
-  [PrincessError.BudgetOverflow]: "Organization budget overflow.",
-  [PrincessError.InsufficientBudget]: "Insufficient organization budget.",
-  [PrincessError.MaxAdminLimitReached]: "Maximum number of admins (10) reached.",
-  [PrincessError.AdminAlreadyExists]: "This address is already an admin.",
-  [PrincessError.CannotRemoveLastAdmin]: "Cannot remove the last administrator.",
-  [PrincessError.NotAnAdmin]: "This address is not an administrator.",
-  [PrincessError.MaintainerAlreadyRegistered]: "This maintainer is already registered.",
-  [PrincessError.MaintainerNotRegistered]: "Maintainer not found in the registry.",
-  [PrincessError.MaintainerOrgMismatch]: "Maintainer does not belong to this organization.",
-  [PrincessError.PayoutOverflow]: "Payout amount overflow.",
-  [PrincessError.BatchSizeExceeded]: "Batch size exceeds the limit of 100 entries.",
-  [PrincessError.EmptyBatch]: "The batch payout list cannot be empty.",
-  [PrincessError.NoClaimableBalance]: "You have no claimable balance at this time.",
-  [PrincessError.PayoutLocked]: "This payout is still in its unlock period.",
-  [PrincessError.NoPendingAdmin]: "No pending admin proposal found.",
-  [PrincessError.NotPendingAdmin]: "You are not the proposed pending administrator.",
+export const PrinceErrorMessage: Record<PrinceError, string> = {
+  [PrinceError.AlreadyInitialized]: "The contract is already initialized.",
+  [PrinceError.EmptyAdminList]: "The admin list cannot be empty.",
+  [PrinceError.InvalidThreshold]: "The multisig threshold is invalid.",
+  [PrinceError.ContractNotInitialized]: "The contract has not been initialized yet.",
+  [PrinceError.ProtocolPaused]: "The protocol is currently paused for maintenance.",
+  [PrinceError.InsufficientMultisigAuth]: "Insufficient signatures provided for this multisig action.",
+  [PrinceError.OrgAlreadyRegistered]: "This organization is already registered.",
+  [PrinceError.OrgNotFound]: "Organization not found.",
+  [PrinceError.NotAuthorized]: "You are not authorized to perform this action.",
+  [PrinceError.InvalidAmount]: "The provided amount must be positive.",
+  [PrinceError.BudgetOverflow]: "Organization budget overflow.",
+  [PrinceError.InsufficientBudget]: "Insufficient organization budget.",
+  [PrinceError.MaxAdminLimitReached]: "Maximum number of admins (10) reached.",
+  [PrinceError.AdminAlreadyExists]: "This address is already an admin.",
+  [PrinceError.CannotRemoveLastAdmin]: "Cannot remove the last administrator.",
+  [PrinceError.NotAnAdmin]: "This address is not an administrator.",
+  [PrinceError.MaintainerAlreadyRegistered]: "This maintainer is already registered.",
+  [PrinceError.MaintainerNotRegistered]: "Maintainer not found in the registry.",
+  [PrinceError.MaintainerOrgMismatch]: "Maintainer does not belong to this organization.",
+  [PrinceError.PayoutOverflow]: "Payout amount overflow.",
+  [PrinceError.BatchSizeExceeded]: "Batch size exceeds the limit of 100 entries.",
+  [PrinceError.EmptyBatch]: "The batch payout list cannot be empty.",
+  [PrinceError.NoClaimableBalance]: "You have no claimable balance at this time.",
+  [PrinceError.PayoutLocked]: "This payout is still in its unlock period.",
+  [PrinceError.NoPendingAdmin]: "No pending admin proposal found.",
+  [PrinceError.NotPendingAdmin]: "You are not the proposed pending administrator.",
 };

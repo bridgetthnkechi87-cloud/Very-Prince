@@ -1,8 +1,8 @@
-# Internationalization (i18n) Implementation
+﻿# Internationalization (i18n) Implementation
 
 ## Overview
 
-This document explains the internationalization implementation for the very-princess Next.js dashboard. The implementation follows Next.js App Router best practices and uses React Server Components for optimal performance.
+This document explains the internationalization implementation for the Very-prince Next.js dashboard. The implementation follows Next.js App Router best practices and uses React Server Components for optimal performance.
 
 ## Architecture
 
@@ -63,7 +63,7 @@ Each dictionary file contains nested translation keys organized by feature:
     "github": "View on GitHub"
   },
   "home": {
-    "title": "very-princess — Stellar Payout Registry",
+    "title": "Very-prince — Stellar Payout Registry",
     "hero_title": "Open Source"
   },
   "dashboard": {

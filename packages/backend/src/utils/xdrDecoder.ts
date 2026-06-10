@@ -143,12 +143,15 @@ export function decodeBase64Xdr(base64Xdr: string): xdr.ScVal {
  *
  * Topics can be Symbols, Addresses, or other ScVal types.
  *
- * @param base64Xdr - Base64-encoded XDR string for the topic
+ * @param topicVal - Base64-encoded XDR string or raw ScVal object
  * @returns Decoded topic value
  */
-export function decodeTopic(base64Xdr: string): DecodedTopic {
-  const scVal = decodeBase64Xdr(base64Xdr);
-  return scValToNative(scVal) as DecodedTopic;
+export function decodeTopic(topicVal: string | xdr.ScVal): DecodedTopic {
+  if (typeof topicVal === "string") {
+    const scVal = decodeBase64Xdr(topicVal);
+    return scValToNative(scVal) as DecodedTopic;
+  }
+  return scValToNative(topicVal) as DecodedTopic;
 }
 
 /**
@@ -156,25 +159,34 @@ export function decodeTopic(base64Xdr: string): DecodedTopic {
  *
  * The value can be a single value or a tuple/struct containing multiple values.
  *
- * @param base64Xdr - Base64-encoded XDR string for the value
+ * @param valueVal - Base64-encoded XDR string or raw ScVal object
  * @returns Decoded value (could be primitive, array, or object)
  */
-export function decodeEventValue(base64Xdr: string): unknown {
-  const scVal = decodeBase64Xdr(base64Xdr);
-  return scValToNative(scVal);
+export function decodeEventValue(valueVal: string | xdr.ScVal): unknown {
+  if (typeof valueVal === "string") {
+    const scVal = decodeBase64Xdr(valueVal);
+    return scValToNative(scVal);
+  }
+  return scValToNative(valueVal);
 }
 
 /**
  * Fully decode a raw Soroban event.
  *
- * @param rawEvent - Raw event from getEvents
+ * @param rawEvent - Raw event from getEvents or JSON RPC
  * @returns Decoded event with native TypeScript types
  */
-export function decodeSorobanEvent(rawEvent: RawSorobanEvent): DecodedEvent {
+export function decodeSorobanEvent(rawEvent: {
+  ledger: number;
+  ledgerClosedAt: string;
+  txHash: string;
+  topic: Array<string | xdr.ScVal>;
+  value: string | xdr.ScVal;
+}): DecodedEvent {
   // Decode all topics
   const decodedTopics = rawEvent.topic.map(decodeTopic);
 
-  // Extract event name from topic[1] (topic[0] is the contract name "VeryPrincess")
+  // Extract event name from topic[1] (topic[0] is the contract name "VeryPrince")
   const eventName = decodedTopics[1]?.toString() ?? "Unknown";
 
   // Decode the value/data payload

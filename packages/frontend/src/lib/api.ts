@@ -1,6 +1,6 @@
-/**
+﻿/**
  * @file api.ts
- * @description Backend API client for very-princess.
+ * @description Backend API client for Very-prince.
  */
 
 const BACKEND_URL = process.env["NEXT_PUBLIC_BACKEND_URL"] ?? "http://localhost:3001/api";

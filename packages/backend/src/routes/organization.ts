@@ -16,9 +16,9 @@
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { stellarService } from "../services/stellarService.js";
-import { organizationService } from "../services/OrganizationService.js";
+import { organizationService } from "../services/organizationService.js";
 import { safeGet, safeSet } from "../services/cache.js";
-import { apiKeyAuthPlugin } from "../plugins/apiKeyAuth.js";
+import { validateApiKey } from "../plugins/apiKeyAuth.js";
 
 // ─── Validation Schemas ──────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get<{ Params: z.infer<typeof OrgIdParam> }>(
     "/:id",
     {
-      preHandler: apiKeyAuthPlugin,
+      preHandler: validateApiKey,
       schema: {
         description: "Get organization details directly from Soroban contract",
         tags: ["Organizations"],
@@ -110,7 +110,7 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
           return reply.send(orgData);
         } catch (error) {
           // Cache corrupted, continue to fetch from contract
-          fastify.log.warn(`Cache corruption for key ${cacheKey}:`, error);
+          fastify.log.warn(error as Error, `Cache corruption for key ${cacheKey}`);
         }
       }
 
@@ -123,7 +123,7 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
         
         return reply.send(orgDetails);
       } catch (error) {
-        fastify.log.error(`Failed to fetch organization details for ${id}:`, error);
+        fastify.log.error(error as Error, `Failed to fetch organization details for ${id}`);
         
         // Check if it's a "not found" error from the contract
         if (error instanceof Error && error.message.includes("not found")) {
@@ -150,7 +150,7 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post<{ Body: z.infer<typeof UploadMetadataSchema> }>(
     "/upload-metadata",
     {
-      preHandler: apiKeyAuthPlugin,
+      preHandler: validateApiKey,
       schema: {
         description: "Upload organization metadata to IPFS",
         tags: ["Organizations"],
@@ -172,7 +172,7 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
         const cid = await organizationService.uploadMetadata(name, description, logoBase64);
         return reply.send({ cid });
       } catch (error) {
-        fastify.log.error("IPFS upload failed:", error);
+        fastify.log.error(error as Error, "IPFS upload failed");
         return reply.status(500).send({ error: "Failed to upload metadata to IPFS" });
       }
     }

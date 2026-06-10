@@ -9,7 +9,7 @@ WORKDIR /app
 RUN npm install -g turbo
 COPY . .
 # Surgically extract only the backend package and its dependencies
-RUN turbo prune @very-princess/backend --docker
+RUN turbo prune @very-prince/backend --docker
 
 # ─── Stage 2: Install & Build ────────────────────────────────────────────────
 FROM base AS installer
@@ -29,7 +29,8 @@ COPY --from=builder /app/tsconfig*.json ./
 RUN npm install --no-save @types/urijs @types/json-schema
 
 # Build the backend
-RUN npx turbo run build --filter=@very-princess/backend...
+RUN npx prisma generate --schema=packages/backend/prisma/schema.prisma
+RUN npx turbo run build --filter=@very-prince/backend...
 
 # ─── Stage 3: Production Runner ──────────────────────────────────────────────
 FROM base AS runner

@@ -1,4 +1,4 @@
-// Set-Content -LiteralPath "C:\Users\ADMIN\OneDrive\Desktop\profile\very-princess\packages\frontend\src\app\profile\[address]\page.tsx" -Value @'
+// Set-Content -LiteralPath "C:\Users\ADMIN\OneDrive\Desktop\profile\Very-prince\packages\frontend\src\app\profile\[address]\page.tsx" -Value @'
 // /**
 //  * @file profile/[address]/page.tsx
 //  * @description Public profile page for any wallet address interacting with
@@ -39,7 +39,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const short = `${params.address.slice(0, 6)}...${params.address.slice(-4)}`;
   return {
-    title: `${short} - very-princess Profile`,
+    title: `${short} - Very-prince Profile`,
     description: `Historical payout stats for Stellar address ${params.address} on the PayoutRegistry.`,
   };
 }
@@ -203,7 +203,7 @@ export default async function ProfilePage({
           <p className="text-xs text-gray-600">
             Powered by{" "}
             <Link href="/" className="text-indigo-500 hover:underline">
-              very-princess
+              Very-prince
             </Link>
           </p>
           <CopyButton

@@ -1,8 +1,8 @@
 {
-  "name": "@very-princess/frontend",
+  "name": "@very-prince/frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "Next.js frontend for the very-princess PayoutRegistry — Freighter wallet integration and Soroban contract UI.",
+  "description": "Next.js frontend for the very-prince PayoutRegistry — Freighter wallet integration and Soroban contract UI.",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
@@ -19,7 +19,7 @@
     "@trpc/client": "^10.45.0",
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
-    "@very-princess/types": "*",
+    "@very-prince/types": "*",
     "next": "14.2.4",
     "next-pwa": "5.6.0",
     "react": "^18.3.1",

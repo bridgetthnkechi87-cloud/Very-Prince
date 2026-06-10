@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # Exit immediately if a command exits with a non-zero status
 set -e
 
@@ -7,8 +7,8 @@ echo "🗄️ Starting automated PostgreSQL backup..."
 # Variables
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_DIR="/tmp"
-BACKUP_FILE="${BACKUP_DIR}/very_princess_backup_${TIMESTAMP}.sql.gz"
-S3_BUCKET="${BACKUP_S3_BUCKET:-s3://very-princess-backups/database/}"
+BACKUP_FILE="${BACKUP_DIR}/very_prince_backup_${TIMESTAMP}.sql.gz"
+S3_BUCKET="${BACKUP_S3_BUCKET:-s3://Very-prince-backups/database/}"
 
 # Ensure required database variables are set
 if [ -z "$PGUSER" ] || [ -z "$PGPASSWORD" ] || [ -z "$PGDATABASE" ]; then

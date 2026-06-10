@@ -3,7 +3,7 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
 const config: Config = {
-  title: "very-princess",
+  title: "very-prince",
   tagline: "Stellar-Native Multi-Organization Payout Registry",
   favicon: "img/favicon.ico",
 
@@ -11,7 +11,7 @@ const config: Config = {
   baseUrl: "/",
 
   organizationName: "Zakky-Fat",
-  projectName: "Very-Princess",
+  projectName: "Very-Prince",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -28,7 +28,7 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.ts",
           editUrl:
-            "https://github.com/Zakky-Fat/Very-Princess/tree/main/packages/docs/",
+            "https://github.com/Zakky-Fatty/Very-prince/tree/main/packages/docs/",
         },
         blog: false,
         theme: {
@@ -41,9 +41,9 @@ const config: Config = {
   themeConfig: {
     image: "img/docusaurus-social-card.jpg",
     navbar: {
-      title: "very-princess",
+      title: "very-prince",
       logo: {
-        alt: "very-princess Logo",
+        alt: "very-prince Logo",
         src: "img/logo.svg",
       },
       items: [
@@ -54,7 +54,7 @@ const config: Config = {
           label: "Docs",
         },
         {
-          href: "https://github.com/Zakky-Fat/Very-Princess",
+          href: "https://github.com/Zakky-Fatty/Very-prince",
           label: "GitHub",
           position: "right",
         },
@@ -82,12 +82,12 @@ const config: Config = {
           items: [
             {
               label: "GitHub",
-              href: "https://github.com/Zakky-Fat/Very-Princess",
+              href: "https://github.com/Zakky-Fatty/Very-prince",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} very-princess. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} very-prince. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

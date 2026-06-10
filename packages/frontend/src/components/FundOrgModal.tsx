@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react";
 import { useUnifiedWallet } from "@/hooks/useUnifiedWallet";
+import { useFundOrg } from "@/hooks/useFundOrg";
 import {
   readAccountXlmBalance,
 } from "@/lib/sorobanClient";
@@ -33,7 +34,8 @@ interface FundOrgModalProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function FundOrgModal({ orgId, onClose, onSuccess }: FundOrgModalProps) {
-  const { isConnected, publicKey, signTransaction } = useUnifiedWallet();
+  const { isConnected, publicKey } = useUnifiedWallet();
+  const { fundOrg, isSubmitting, error } = useFundOrg();
 
   const [amount, setAmount] = useState("");
 
@@ -177,6 +179,17 @@ export function FundOrgModal({ orgId, onClose, onSuccess }: FundOrgModalProps) {
                 <span className="font-mono text-white">~0.00001 XLM</span>
               </div>
             </div>
+
+            {/* ── Submit Button ── */}
+            <button
+              type="submit"
+              disabled={isSubmitting || !amount || parseFloat(amount) <= 0 || (balance !== null && parseFloat(amount) > balance)}
+              className="mt-6 w-full rounded-xl bg-gradient-to-r from-stellar-purple to-stellar-teal py-3 font-semibold text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle
                       className="opacity-25"
                       cx="12"
                       cy="12"

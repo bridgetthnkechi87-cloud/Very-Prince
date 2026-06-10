@@ -1,7 +1,7 @@
 import { webhookRepository } from "../repositories/WebhookRepository.js";
 import { createHash, randomBytes } from "node:crypto";
 import { Queue } from "bullmq";
-import { redis } from "./cache.js";
+import { bullRedisConnection } from "./cache.js";
 
 export interface WebhookJobData {
   /** The unique ID of the organization to notify. */
@@ -21,7 +21,7 @@ export class WebhookService {
 
   constructor() {
     this.webhookQueue = new Queue("webhook-dispatch", {
-      connection: redis,
+      connection: bullRedisConnection,
       defaultJobOptions: {
         attempts: 5,
         backoff: {
@@ -129,6 +129,24 @@ export class WebhookService {
       ledger,
       timestamp: new Date().toISOString(),
     });
+  }
+
+  /**
+   * Dispatches a test webhook event.
+   * @param organizationId The ID of the organization.
+   */
+  async sendTestWebhook(organizationId: string) {
+    const config = await webhookRepository.getConfig(organizationId);
+    if (!config || !config.url) {
+      throw new Error("No webhook configuration found for this organization");
+    }
+
+    await this.queueWebhook(organizationId, "test_event", {
+      message: "This is a test webhook from Very-prince.",
+      timestamp: new Date().toISOString(),
+    });
+
+    return { success: true, message: "Test webhook queued successfully" };
   }
 }
 

@@ -14,7 +14,7 @@ Webhooks let you receive real-time HTTP notifications when payout events occur o
 curl -X POST https://api.tradeflow.app/webhooks \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://your-server.com/hooks/very-princess",
+    "url": "https://your-server.com/hooks/very-prince",
     "events": ["payout.claimed", "org.funded"],
     "secret": "your-signing-secret"
   }'
@@ -25,7 +25,7 @@ const webhook = await fetch("https://api.tradeflow.app/webhooks", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    url: "https://your-server.com/hooks/very-princess",
+    url: "https://your-server.com/hooks/very-prince",
     events: ["payout.claimed", "org.funded"],
     secret: "your-signing-secret",
   }),
@@ -38,7 +38,7 @@ import requests
 webhook = requests.post(
     "https://api.tradeflow.app/webhooks",
     json={
-        "url": "https://your-server.com/hooks/very-princess",
+        "url": "https://your-server.com/hooks/very-prince",
         "events": ["payout.claimed", "org.funded"],
         "secret": "your-signing-secret",
     },
@@ -64,12 +64,12 @@ Every webhook POST contains a JSON body:
 
 ## Verifying the Signature
 
-Each request includes an `X-Webhook-Signature` header. Verify it to ensure the payload came from very-princess:
+Each request includes an `X-Webhook-Signature` header. Verify it to ensure the payload came from very-prince:
 
 ```js title="Node.js (Express)"
 import crypto from "crypto";
 
-app.post("/hooks/very-princess", (req, res) => {
+app.post("/hooks/very-prince", (req, res) => {
   const sig = req.headers["x-webhook-signature"];
   const expected = crypto
     .createHmac("sha256", process.env.WEBHOOK_SECRET)
@@ -88,7 +88,7 @@ app.post("/hooks/very-princess", (req, res) => {
 import hmac, hashlib, json
 from flask import request, abort
 
-@app.route("/hooks/very-princess", methods=["POST"])
+@app.route("/hooks/very-prince", methods=["POST"])
 def webhook():
     sig = request.headers.get("X-Webhook-Signature", "")
     body = request.get_data()

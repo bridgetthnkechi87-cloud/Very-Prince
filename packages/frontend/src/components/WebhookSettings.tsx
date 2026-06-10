@@ -155,7 +155,7 @@ export function WebhookSettings({ orgId, publicKey }: Props) {
         <div className="glass-card p-6">
           <h3 className="text-lg font-semibold text-white mb-4">Webhook Secret</h3>
           <p className="text-sm text-white/50 mb-4">
-            Use this secret to verify that webhooks are coming from Very Princess.
+            Use this secret to verify that webhooks are coming from Very Prince.
           </p>
           <div className="flex items-center gap-3">
             <div className="flex-1 rounded-lg bg-black/20 px-4 py-2.5 font-mono text-sm text-white/70">

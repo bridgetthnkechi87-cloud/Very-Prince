@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
-import { webhookService } from "../services/WebhookService.js";
+import { webhookService } from "../services/webhookService.js";
 import { stellarService } from "../services/stellarService.js";
 
 const WebhookConfigBody = z.object({

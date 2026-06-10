@@ -1,6 +1,6 @@
 /**
  * @file router.ts
- * @description tRPC router definition for the very-princess backend.
+ * @description tRPC router definition for the Very-prince backend.
  */
 
 import { initTRPC } from '@trpc/server';
@@ -14,7 +14,7 @@ export const t = initTRPC.create();
 // Create the main router
 export const appRouter = t.router({
   // Organization related procedures
-  organization: {
+  organization: t.router({
     get: t.procedure
       .input(z.object({
         id: z.string().min(1).max(32),
@@ -85,7 +85,7 @@ export const appRouter = t.router({
         admin: z.string().min(1),
         signerSecret: z.string().min(1),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async () => {
         // This would be implemented to handle organization creation
         // For now, return placeholder response
         return {
@@ -93,10 +93,10 @@ export const appRouter = t.router({
           message: "Organization creation not yet implemented in tRPC",
         };
       }),
-  },
+  }),
 
   // Contract related procedures
-  contract: {
+  contract: t.router({
     getStatus: t.procedure.query(() => ({
       status: 'ok',
       version: '0.1.0',
@@ -109,17 +109,17 @@ export const appRouter = t.router({
       network: 'testnet',
       lastUpdated: new Date().toISOString(),
     })),
-  },
+  }),
 
   // Stats related procedures
-  stats: {
+  stats: t.router({
     getOverview: t.procedure.query(() => ({
       totalOrganizations: 0,
       totalPayouts: 0,
       totalVolume: '0',
       lastSync: new Date().toISOString(),
     })),
-  },
+  }),
 });
 
 // Export type for client usage

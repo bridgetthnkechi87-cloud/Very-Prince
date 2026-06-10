@@ -8,7 +8,7 @@
  * validates organization access.
  */
 
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { ApiKeyService, type ApiKeyData } from '../services/apiKeyService.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────
@@ -19,47 +19,51 @@ declare module 'fastify' {
   }
 }
 
+// ─── Validation Hook ──────────────────────────────────────────────────────
+
+const apiKeyService = new ApiKeyService();
+
+export async function validateApiKey(request: FastifyRequest, reply: FastifyReply) {
+  // Only apply to GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Check for Authorization header
+  const authHeader = request.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return reply.status(401).send({
+      error: 'Unauthorized',
+      message: 'API key required. Use Authorization: Bearer <api-key>',
+    });
+  }
+
+  // Extract API key from Bearer token
+  const apiKey = authHeader.replace('Bearer ', '').trim();
+  if (!apiKey) {
+    return reply.status(401).send({
+      error: 'Unauthorized',
+      message: 'Invalid API key format',
+    });
+  }
+
+  // Validate the API key
+  const apiKeyData = await apiKeyService.validateApiKey(apiKey);
+  if (!apiKeyData) {
+    return reply.status(401).send({
+      error: 'Unauthorized',
+      message: 'Invalid or inactive API key',
+    });
+  }
+
+  // Attach API key data to request for later use
+  request.apiKey = apiKeyData;
+}
+
 // ─── Authentication Guard Plugin ───────────────────────────────────────────
 
 export const apiKeyAuthPlugin: FastifyPluginAsync = async (fastify) => {
-  const apiKeyService = new ApiKeyService();
-
-  fastify.addHook('preHandler', async (request, reply) => {
-    // Only apply to GET requests
-    if (request.method !== 'GET') {
-      return;
-    }
-
-    // Check for Authorization header
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'API key required. Use Authorization: Bearer <api-key>',
-      });
-    }
-
-    // Extract API key from Bearer token
-    const apiKey = authHeader.replace('Bearer ', '').trim();
-    if (!apiKey) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'Invalid API key format',
-      });
-    }
-
-    // Validate the API key
-    const apiKeyData = await apiKeyService.validateApiKey(apiKey);
-    if (!apiKeyData) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'Invalid or inactive API key',
-      });
-    }
-
-    // Attach API key data to request for later use
-    request.apiKey = apiKeyData;
-  });
+  fastify.addHook('preHandler', validateApiKey);
 }
 
 // ─── Helper Functions ─────────────────────────────────────────────────────

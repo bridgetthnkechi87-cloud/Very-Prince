@@ -76,7 +76,7 @@ Expected output: `true`
 
 Post to Discord, Twitter/X, and the project website within **1 hour** of pausing:
 
-> ⚠️ The very-princess V1 contract has been paused. No new deposits are accepted. All existing payout allocations remain claimable indefinitely. See RUNBOOK_MIGRATION.md for details.
+> ⚠️ The very-prince V1 contract has been paused. No new deposits are accepted. All existing payout allocations remain claimable indefinitely. See RUNBOOK_MIGRATION.md for details.
 
 ---
 
@@ -136,7 +136,7 @@ Set the environment variable in Vercel (or your hosting provider):
 ```
 NEXT_PUBLIC_SUNSET_MODE=true
 NEXT_PUBLIC_SUNSET_DATE=2026-06-01
-NEXT_PUBLIC_SUNSET_MESSAGE="very-princess V1 is sunsetting. Please claim your payouts before June 1, 2026."
+NEXT_PUBLIC_SUNSET_MESSAGE="very-prince V1 is sunsetting. Please claim your payouts before June 1, 2026."
 ```
 
 The `layout.tsx` reads `NEXT_PUBLIC_SUNSET_MODE` and renders a sticky top banner when `true`.
@@ -169,7 +169,7 @@ This prevents new wallet connections while still allowing existing sessions to c
 
 ```bash
 soroban contract deploy \
-  --wasm packages/contracts/target/wasm32-unknown-unknown/release/very_princess.wasm \
+  --wasm packages/contracts/target/wasm32-unknown-unknown/release/very_prince.wasm \
   --source admin \
   --network mainnet
 ```

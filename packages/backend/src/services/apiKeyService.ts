@@ -17,9 +17,9 @@ import { prisma } from './db.js';
 export interface ApiKeyData {
   id: string;
   organizationId: string;
-  name?: string;
+  name: string | null;
   isActive: boolean;
-  lastUsedAt?: Date;
+  lastUsedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +38,7 @@ class ApiKeyService {
    * Generate a secure 32-character alphanumeric API key
    * Uses crypto.randomBytes for cryptographically secure random generation
    */
-  generateApiKey(): string {
+  generatePlainTextApiKey(): string {
     const bytes = crypto.randomBytes(16); // 16 bytes = 128 bits of entropy
     return bytes
       .toString('base64')
@@ -58,7 +58,7 @@ class ApiKeyService {
    * Returns the plain text key (only shown once) and the stored API key data
    */
   async generateApiKey(organizationId: string, name?: string): Promise<GeneratedApiKey> {
-    const plainTextKey = this.generateApiKey();
+    const plainTextKey = this.generatePlainTextApiKey();
     const hashedKey = this.hashApiKey(plainTextKey);
 
     // Check if this exact key already exists (extremely unlikely but possible)
@@ -79,7 +79,7 @@ class ApiKeyService {
       data: {
         organizationId,
         hashedKey,
-        name,
+        name: name ?? null,
         isActive: true,
       },
     });

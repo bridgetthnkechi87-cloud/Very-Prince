@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # =============================================================================
-# very-princess — Soroban Contract Deploy Script
+# very-prince — Soroban Contract Deploy Script
 # =============================================================================
 # This script builds, optimizes, and deploys the PayoutRegistry contract.
 # It then updates the .env files in the backend and frontend packages.
@@ -51,7 +51,7 @@ log "Building contract with cargo..."
 cd "${CONTRACT_DIR}"
 cargo build --target wasm32-unknown-unknown --release
 
-WASM_PATH="target/wasm32-unknown-unknown/release/very_princess_contracts.wasm"
+WASM_PATH="target/wasm32-unknown-unknown/release/very_prince_contracts.wasm"
 
 if [[ ! -f "${WASM_PATH}" ]]; then
     err "WASM build artefact not found at: ${WASM_PATH}"
@@ -62,7 +62,7 @@ fi
 log "Optimizing WASM..."
 soroban contract optimize --wasm "${WASM_PATH}"
 
-OPTIMIZED_WASM_PATH="target/wasm32-unknown-unknown/release/very_princess_contracts.optimized.wasm"
+OPTIMIZED_WASM_PATH="target/wasm32-unknown-unknown/release/very_prince_contracts.optimized.wasm"
 
 if [[ ! -f "${OPTIMIZED_WASM_PATH}" ]]; then
     err "Optimized WASM not found at: ${OPTIMIZED_WASM_PATH}"

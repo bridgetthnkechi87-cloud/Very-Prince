@@ -6,22 +6,7 @@
  * providing a secure challenge-response authentication system for Stellar wallets.
  */
 
-import { authService, NonceResponse } from "../services/AuthService.js";
-import { z } from "zod";
-
-// ─── Validation Schemas ──────────────────────────────────────────────────────
-
-/** Validation for the GET /nonce query parameter. */
-const NonceQuery = z.object({
-  publicKey: z.string().min(56).max(56).regex(/^G/, "Must be a valid Stellar public key starting with 'G'"),
-});
-
-/** Validation for the POST /verify request body. */
-const VerifyAuthBody = z.object({
-  publicKey: z.string().min(56).max(56).regex(/^G/, "Must be a valid Stellar public key starting with 'G'"),
-  signature: z.string().min(1, "Signature is required"),
-  originalMessage: z.string().min(1, "Original message is required"),
-});
+import { authService, NonceResponse } from "../services/authService.js";
 
 // ─── Response Types ───────────────────────────────────────────────────────
 
@@ -64,7 +49,7 @@ export const authController = {
    */
   async verifySignature(
     publicKey: string,
-    signature: string,
+    _signature: string,
     originalMessage: string
   ): Promise<VerifySuccessResponse> {
     // Extract nonce from the original message
@@ -74,6 +59,9 @@ export const authController = {
     }
 
     const nonce = nonceMatch[1];
+    if (!nonce) {
+      throw new Error("Invalid message format: nonce not found");
+    }
 
     // Verify the nonce exists and is valid
     const isValidNonce = await authService.verifyNonce(publicKey, nonce);

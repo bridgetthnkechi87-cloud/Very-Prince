@@ -5,8 +5,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import { useState, useEffect, Suspense, useOptimistic, useTransition } from "react";
+import { useState, useEffect, useCallback, Suspense, useOptimistic, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { WalletButton } from "@/components/WalletButton";
@@ -48,7 +47,7 @@ function DashboardPageInner() {
       const existingIndex = state.findIndex(b => b.address === newAlloc.address);
       if (existingIndex !== -1) {
         const newState = [...state];
-        const current = newState[existingIndex];
+        const current = newState[existingIndex]!;
         const newStroops = current.stroops + newAlloc.amount;
         newState[existingIndex] = {
           ...current,
@@ -78,7 +77,7 @@ function DashboardPageInner() {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   /** Fetch org data, budget, and all maintainer balances from Soroban RPC. */
-  const handleLookupOrg = async (idOverride?: string) => {
+  const handleLookupOrg = useCallback(async (idOverride?: string) => {
     const id = (idOverride ?? orgIdInput).trim();
     if (!id) return;
     setIsLoading(true);
@@ -379,7 +378,7 @@ function DashboardPageInner() {
                   <ApiKeySettings orgId={organization.id} publicKey={publicKey || ""} />
                   <WebhookSettings orgId={organization.id} publicKey={publicKey || ""} />
                 </div>
-              )}
+              )
             )}
           </>
         )}

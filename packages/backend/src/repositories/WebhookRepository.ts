@@ -25,7 +25,7 @@ export class WebhookRepository {
         data: { url, ...(secret && { secret }) },
       });
     } else {
-      const webhookSecret = secret || `whsec_${crypto.randomBytes(24).toString("hex")}`;
+      const webhookSecret = secret || `whsec_${randomBytes(24).toString("hex")}`;
       return prisma.webhookConfig.create({
         data: {
           organizationId,
@@ -41,9 +41,9 @@ export class WebhookRepository {
       data: {
         webhookConfigId,
         payload: JSON.stringify(payload),
-        statusCode,
-        responseBody,
-        errorMessage,
+        statusCode: statusCode ?? null,
+        responseBody: responseBody ?? null,
+        errorMessage: errorMessage ?? null,
       },
     });
   }

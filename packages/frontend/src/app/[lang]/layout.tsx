@@ -1,27 +1,8 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Locale, defaultLocale } from "@/lib/i18n";
+import type { Metadata, Viewport } from "next";
+import { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/getDictionary";
-import type { Dictionary } from "@/lib/getDictionary";
-import "../globals.css";
 
-// ── Font Loading ──────────────────────────────────────────────────────────────
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-});
-
-// ── Layout Types ─────────────────────────────────────────────────────────────
+// ── Layout Types ──────────────────────────────────────────────────────────────
 
 export interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -42,17 +23,22 @@ export async function generateMetadata({
       process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
     ),
     title: {
-      template: "%s | very-princess",
+      template: "%s | very-prince",
       default: dictionary.home.title,
     },
     description: dictionary.home.description,
-    keywords: ["Stellar", "Soroban", "DeFi", "Open Source", "Drips", "Payouts"],
+    keywords: ["Stellar", "Soroban", "DeFi", "Open Source", "Payouts"],
     openGraph: {
-      siteName: "very-princess",
+      siteName: "very-prince",
       title: dictionary.home.title,
       description: dictionary.home.description,
       type: "website",
-      locale: params.lang === 'en' ? 'en_US' : params.lang === 'es' ? 'es_ES' : 'ja_JP',
+      locale:
+        params.lang === "en"
+          ? "en_US"
+          : params.lang === "es"
+          ? "es_ES"
+          : "ja_JP",
     },
     twitter: {
       card: "summary_large_image",
@@ -62,42 +48,16 @@ export async function generateMetadata({
   };
 }
 
-// ── Layout Component ───────────────────────────────────────────────────────────
+// ── Viewport ──────────────────────────────────────────────────────────────────
 
-export default async function LocaleLayout({
-  children,
-  params,
-}: LocaleLayoutProps) {
-  const dictionary = await getDictionary(params.lang);
+export const viewport: Viewport = {
+  themeColor: "#6366f1",
+};
 
-  return (
-    <html lang={params.lang} className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-stellar-blue font-sans text-white antialiased">
-        {/* Starfield ambient background */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 bg-hero-pattern"
-        />
-        {/* Page content */}
-        <div className="relative">{children}</div>
-        
-        {/* Toast notifications */}
-        <Toaster
-          position="top-right"
-          expand={false}
-          richColors
-          closeButton
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: 'white',
-            },
-          }}
-        />
-      </body>
-    </html>
-  );
+// ── Layout Component ──────────────────────────────────────────────────────────
+// NOTE: Do NOT render <html> or <body> here — the root src/app/layout.tsx
+// already does that. Nesting them breaks CSS entirely.
+
+export default function LocaleLayout({ children }: LocaleLayoutProps) {
+  return <>{children}</>;
 }

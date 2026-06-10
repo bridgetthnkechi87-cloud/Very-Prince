@@ -11,8 +11,8 @@ export class OrganizationRepository {
   async findMany(skip: number, take: number, search?: string): Promise<Organization[]> {
     const where = search ? {
       OR: [
-        { id: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
+        { id: { contains: search, mode: 'insensitive' as const } },
+        { name: { contains: search, mode: 'insensitive' as const } },
       ],
     } : {};
 
@@ -27,8 +27,8 @@ export class OrganizationRepository {
   async count(search?: string): Promise<number> {
     const where = search ? {
       OR: [
-        { id: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
+        { id: { contains: search, mode: 'insensitive' as const } },
+        { name: { contains: search, mode: 'insensitive' as const } },
       ],
     } : {};
 

@@ -1,6 +1,6 @@
 # rust-toolchain.toml
 #
-# Declares the pinned Rust toolchain for the very-princess contracts package.
+# Declares the pinned Rust toolchain for the very-prince contracts package.
 # All Rust tooling (cargo, clippy, rustfmt, stellar-cli) and the GitHub Actions
 # CI workflow read this file automatically via rustup.
 #

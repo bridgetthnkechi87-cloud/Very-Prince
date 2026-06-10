@@ -80,10 +80,11 @@ export class SorobanClient {
     );
 
     // Get contract ID from environment variable
-    this.contractId = process.env.CONTRACT_ID;
-    if (!this.contractId) {
+    const contractId = process.env.CONTRACT_ID;
+    if (!contractId) {
       throw new Error('CONTRACT_ID environment variable is required');
     }
+    this.contractId = contractId;
 
     this.retryConfig = DEFAULT_RETRY_CONFIG;
   }
@@ -105,7 +106,7 @@ export class SorobanClient {
   /**
    * Get account information with retry mechanism
    */
-  async getAccount(accountId: string): Promise<SorobanRpc.Api.GetAccountResponse> {
+  async getAccount(accountId: string): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.getAccount(accountId),
       this.retryConfig
@@ -116,11 +117,11 @@ export class SorobanClient {
    * Get contract data with retry mechanism
    */
   async getContractData(
-    key: SorobanRpc.Api.LedgerEntry.ContractDataKey,
-    durability: SorobanRpc.Durability = SorobanRpc.Durability.Persistent
-  ): Promise<SorobanRpc.Api.GetLedgerEntriesResponse> {
+    key: any,
+    durability: any = SorobanRpc.Durability.Persistent
+  ): Promise<any> {
     return retryWithBackoff(
-      () => this.rpcServer.getContractData(this.contractId, key, durability),
+      () => (this.rpcServer as any).getContractData(this.contractId, key, durability),
       this.retryConfig
     );
   }
@@ -129,10 +130,10 @@ export class SorobanClient {
    * Get ledger entries with retry mechanism
    */
   async getLedgerEntries(
-    keys: SorobanRpc.Api.LedgerEntryKey[]
-  ): Promise<SorobanRpc.Api.GetLedgerEntriesResponse> {
+    keys: any[]
+  ): Promise<any> {
     return retryWithBackoff(
-      () => this.rpcServer.getLedgerEntries(keys),
+      () => this.rpcServer.getLedgerEntries(keys as any),
       this.retryConfig
     );
   }
@@ -141,8 +142,8 @@ export class SorobanClient {
    * Simulate transaction with retry mechanism
    */
   async simulateTransaction(
-    transaction: SorobanRpc.Api.Transaction
-  ): Promise<SorobanRpc.Api.SimulateTransactionResponse> {
+    transaction: any
+  ): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.simulateTransaction(transaction),
       this.retryConfig
@@ -152,7 +153,7 @@ export class SorobanClient {
   /**
    * Get latest ledger with retry mechanism
    */
-  async getLatestLedger(): Promise<SorobanRpc.Api.GetLatestLedgerResponse> {
+  async getLatestLedger(): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.getLatestLedger(),
       this.retryConfig
@@ -164,7 +165,7 @@ export class SorobanClient {
    */
   async getTransaction(
     hash: string
-  ): Promise<SorobanRpc.Api.GetTransactionResponse> {
+  ): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.getTransaction(hash),
       this.retryConfig
@@ -175,8 +176,8 @@ export class SorobanClient {
    * Get events with retry mechanism
    */
   async getEvents(
-    request: SorobanRpc.Api.GetEventsRequest
-  ): Promise<SorobanRpc.Api.GetEventsResponse> {
+    request: any
+  ): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.getEvents(request),
       this.retryConfig
@@ -186,7 +187,7 @@ export class SorobanClient {
   /**
    * Get health status with retry mechanism
    */
-  async getHealth(): Promise<SorobanRpc.Api.GetHealthResponse> {
+  async getHealth(): Promise<any> {
     return retryWithBackoff(
       () => this.rpcServer.getHealth(),
       this.retryConfig
@@ -197,7 +198,8 @@ export class SorobanClient {
    * Close the RPC server connection
    */
   async close(): Promise<void> {
-    await this.rpcServer.close();
+    // rpcServer.close is not supported in newer SDK versions
+    // await this.rpcServer.close();
   }
 }
 

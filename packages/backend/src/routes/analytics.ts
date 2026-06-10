@@ -38,7 +38,7 @@ export const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (_request, reply) => {
       const result = await analyticsController.getLeaderboard();
       return reply.send(result);
     }

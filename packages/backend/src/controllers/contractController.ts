@@ -1,5 +1,5 @@
-import { organizationService, PaginatedOrgsResponse } from "../services/OrganizationService.js";
-import { payoutService } from "../services/PayoutService.js";
+import { organizationService, PaginatedOrgsResponse } from "../services/organizationService.js";
+import { payoutService } from "../services/payoutService.js";
 import { stellarService } from "../services/stellarService.js";
 
 // ─── Response Types ───────────────────────────────────────────────────────────

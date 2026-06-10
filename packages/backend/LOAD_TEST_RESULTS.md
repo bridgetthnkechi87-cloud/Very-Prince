@@ -1,4 +1,4 @@
-# Load Testing Results - Very Princess Backend
+﻿# Load Testing Results - Very Prince Backend
 
 ## Test Configuration
 - **Tool**: k6
@@ -180,6 +180,6 @@ const performanceMetrics = {
 ## Contact Information
 
 For questions about load testing:
-- Repository: https://github.com/olaleyeolajide81-sketch/Very-Princess
+- Repository: https://github.com/olaleyeolajide81-sketch/Very-prince
 - Load Test Script: packages/backend/load-test.js
 - Results Documentation: This file

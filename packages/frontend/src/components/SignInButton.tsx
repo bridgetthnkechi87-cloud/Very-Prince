@@ -14,11 +14,9 @@ export function SignInButton() {
   const { 
     isAuthenticated, 
     isWalletConnected, 
-    isReady, 
     signIn, 
     signOut, 
     isLoading, 
-    error,
     user 
   } = useAuthWithWallet();
   

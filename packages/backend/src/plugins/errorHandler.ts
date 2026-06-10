@@ -19,7 +19,7 @@ export async function errorHandler(server: FastifyInstance) {
           user: (request as any).user ? {
             id: (request as any).user.walletAddress,
             email: (request as any).user.email,
-          } : null,
+          } : undefined,
         },
         tags: {
           route: request.routeOptions?.url || "unknown",

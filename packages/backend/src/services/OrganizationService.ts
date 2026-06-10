@@ -1,7 +1,7 @@
-import { organizationRepository } from "../repositories/OrganizationRepository.js";
+﻿import { organizationRepository } from "../repositories/OrganizationRepository.js";
 import { stellarService } from "../services/stellarService.js";
 import { redis } from "../services/cache.js";
-import type { PaginatedOrgsResponse } from "@very-princess/types";
+import type { PaginatedOrgsResponse } from "@very-prince/types";
 import { ipfsService } from "./ipfsService.js";
 
 export type { PaginatedOrgsResponse };

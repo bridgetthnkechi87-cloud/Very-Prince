@@ -1,6 +1,6 @@
-/**
+﻿/**
  * @file error.tsx
- * @description Next.js error boundary for the very-princess application.
+ * @description Next.js error boundary for the Very-prince application.
  *
  * This error boundary catches runtime errors in the app directory and displays
  * a user-friendly fallback UI instead of a blank white screen. It includes:
@@ -14,7 +14,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
-import { PrincessErrorMessage } from "@very-princess/types";
+import { PrinceErrorMessage } from "@very-prince/types";
 
 // ── Error Types ──────────────────────────────────────────────────────────────
 
@@ -28,8 +28,8 @@ interface ErrorBoundaryProps {
 function translateBlockchainError(error: Error): string {
   const errorMessage = error.message;
 
-  // Check if the error message is one of our custom PrincessError messages
-  const customMessages = Object.values(PrincessErrorMessage);
+  // Check if the error message is one of our custom PrinceError messages
+  const customMessages = Object.values(PrinceErrorMessage);
   if (customMessages.includes(errorMessage)) {
     return errorMessage;
   }
@@ -195,7 +195,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
           <p className="text-white/60 text-sm">
             If this problem persists, please{' '}
             <a
-              href="https://github.com/Zakky-Fat/Very-Princess/issues"
+              href="https://github.com/Zakky-Fat/Very-prince/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/80 hover:text-white underline"

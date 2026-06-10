@@ -170,7 +170,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        const publicKey = authHeader.replace('Bearer ', '').trim();
+        // const publicKey = authHeader.replace('Bearer ', '').trim();
         
         // TODO: Verify the public key belongs to an admin of the organization
         // This would require checking against the contract or database
@@ -184,7 +184,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           data: apiKeys,
         });
       } catch (error) {
-        fastify.log.error("Failed to list API keys:", error);
+        fastify.log.error(error as Error, "Failed to list API keys:");
         
         return reply.status(500).send({
           success: false,
@@ -342,7 +342,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        const publicKey = authHeader.replace('Bearer ', '').trim();
+        // const publicKey = authHeader.replace('Bearer ', '').trim();
         
         // TODO: Verify the public key belongs to an admin of the organization
         // For now, we'll assume the authentication is handled by middleware
@@ -355,7 +355,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           data: result,
         });
       } catch (error) {
-        fastify.log.error("Failed to generate API key:", error);
+        fastify.log.error(error as Error, "Failed to generate API key:");
         
         return reply.status(500).send({
           success: false,
@@ -479,7 +479,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        const publicKey = authHeader.replace('Bearer ', '').trim();
+        // const publicKey = authHeader.replace('Bearer ', '').trim();
         
         // TODO: Verify the public key belongs to an admin of the organization
         // For now, we'll assume the authentication is handled by middleware
@@ -500,7 +500,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           message: "API key revoked successfully",
         });
       } catch (error) {
-        fastify.log.error("Failed to revoke API key:", error);
+        fastify.log.error(error as Error, "Failed to revoke API key:");
         
         return reply.status(500).send({
           success: false,
@@ -640,7 +640,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        const publicKey = authHeader.replace('Bearer ', '').trim();
+        // const publicKey = authHeader.replace('Bearer ', '').trim();
         
         // TODO: Verify the public key belongs to an admin of the organization
         // For now, we'll assume the authentication is handled by middleware
@@ -661,7 +661,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           message: "API key updated successfully",
         });
       } catch (error) {
-        fastify.log.error("Failed to update API key:", error);
+        fastify.log.error(error as Error, "Failed to update API key:");
         
         return reply.status(500).send({
           success: false,

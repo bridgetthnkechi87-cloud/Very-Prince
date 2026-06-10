@@ -152,12 +152,12 @@ function applyConvolution(canvas: HTMLCanvasElement, kernel: number[], divisor =
           const px = Math.min(canvas.width - 1, Math.max(0, x + kx));
           const py = Math.min(canvas.height - 1, Math.max(0, y + ky));
           const offset = (py * canvas.width + px) * 4;
-          const weight = kernel[(ky + 1) * 3 + (kx + 1)];
+          const weight = kernel[(ky + 1) * 3 + (kx + 1)] ?? 0;
 
-          r += imageData.data[offset] * weight;
-          g += imageData.data[offset + 1] * weight;
-          b += imageData.data[offset + 2] * weight;
-          a += imageData.data[offset + 3] * weight;
+          r += (imageData.data[offset] ?? 0) * weight;
+          g += (imageData.data[offset + 1] ?? 0) * weight;
+          b += (imageData.data[offset + 2] ?? 0) * weight;
+          a += (imageData.data[offset + 3] ?? 0) * weight;
         }
       }
 
@@ -165,7 +165,7 @@ function applyConvolution(canvas: HTMLCanvasElement, kernel: number[], divisor =
       result.data[index] = Math.min(255, Math.max(0, r / divisor + bias));
       result.data[index + 1] = Math.min(255, Math.max(0, g / divisor + bias));
       result.data[index + 2] = Math.min(255, Math.max(0, b / divisor + bias));
-      result.data[index + 3] = imageData.data[index + 3];
+      result.data[index + 3] = imageData.data[index + 3] ?? 255;
     }
   }
 
@@ -178,9 +178,9 @@ function applyVintageTone(canvas: HTMLCanvasElement, intensity = 1) {
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < imageData.data.length; i += 4) {
-    const r = imageData.data[i];
-    const g = imageData.data[i + 1];
-    const b = imageData.data[i + 2];
+    const r = imageData.data[i] ?? 0;
+    const g = imageData.data[i + 1] ?? 0;
+    const b = imageData.data[i + 2] ?? 0;
 
     imageData.data[i] = Math.min(255, r * (1 + 0.08 * intensity) + 14);
     imageData.data[i + 1] = Math.min(255, g * (1 - 0.04 * intensity) + 6);

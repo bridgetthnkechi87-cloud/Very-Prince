@@ -56,7 +56,7 @@ pub struct MultisigAdmin {
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
-pub enum PrincessError {
+pub enum PrinceError {
     /// The contract has already been initialized and cannot be re-configured.
     AlreadyInitialized = 1,
     /// The provided list of administrators for initialization is empty.
@@ -176,15 +176,15 @@ impl PayoutRegistry {
 
     pub fn init(env: Env, token: Address, admins: Vec<Address>, threshold: u32) {
         if env.storage().persistent().has(&DataKey::Token) {
-            panic_with_error!(&env, PrincessError::AlreadyInitialized);
+            panic_with_error!(&env, PrinceError::AlreadyInitialized);
         }
         
         if admins.is_empty() {
-            panic_with_error!(&env, PrincessError::EmptyAdminList);
+            panic_with_error!(&env, PrinceError::EmptyAdminList);
         }
         
         if threshold == 0 || threshold > admins.len() as u32 {
-            panic_with_error!(&env, PrincessError::InvalidThreshold);
+            panic_with_error!(&env, PrinceError::InvalidThreshold);
         }
         
         env.storage().persistent().set(&DataKey::Token, &token);
@@ -200,7 +200,7 @@ impl PayoutRegistry {
         env.storage().persistent().extend_ttl(&DataKey::ProtocolState, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
         
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "Initialized")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "Initialized")),
             (token, admins.len(), threshold),
         );
     }
@@ -212,7 +212,7 @@ impl PayoutRegistry {
         env.storage()
             .persistent()
             .get(&DataKey::Token)
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::ContractNotInitialized))
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::ContractNotInitialized))
     }
 
     /// Retrieve the multisig admin configuration.
@@ -226,7 +226,7 @@ impl PayoutRegistry {
         env.storage()
             .persistent()
             .get(&DataKey::MultisigAdmin)
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::ContractNotInitialized))
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::ContractNotInitialized))
     }
 
     /// Retrieve the current protocol state.
@@ -240,7 +240,7 @@ impl PayoutRegistry {
         env.storage()
             .persistent()
             .get(&DataKey::ProtocolState)
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::ContractNotInitialized))
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::ContractNotInitialized))
     }
 
     /// Assert that the protocol is currently active.
@@ -251,7 +251,7 @@ impl PayoutRegistry {
         let state = Self::get_protocol_state(env.clone());
         match state {
             ProtocolState::Active => {}, // Continue normally
-            ProtocolState::Paused => panic_with_error!(env, PrincessError::ProtocolPaused),
+            ProtocolState::Paused => panic_with_error!(env, PrinceError::ProtocolPaused),
         }
     }
 
@@ -264,21 +264,27 @@ impl PayoutRegistry {
     /// 
     /// # Panics
     /// If insufficient signatures are provided
-    fn verify_multisig_auth(env: &Env) {
+    fn verify_multisig_auth(env: &Env, signers: &Vec<Address>) {
         let multisig_admin = Self::get_multisig_admin(env.clone());
         
-        // Count how many of the authorized admins are actually signing
-        let mut auth_count = 0;
-        for i in 0..multisig_admin.admins.len() {
-            let admin = multisig_admin.admins.get(i).unwrap();
-            if admin.has_auth() {
-                auth_count += 1;
+        // Verify unique signers count meets threshold
+        let mut unique_signers = Vec::new(env);
+        for signer in signers.iter() {
+            if !unique_signers.contains(&signer) {
+                unique_signers.push_back(signer.clone());
             }
         }
         
-        // Verify we meet the threshold
-        if auth_count < multisig_admin.threshold {
-            panic_with_error!(env, PrincessError::InsufficientMultisigAuth);
+        if unique_signers.len() < multisig_admin.threshold {
+            panic_with_error!(env, PrinceError::InsufficientMultisigAuth);
+        }
+        
+        // Check that each signer is a registered admin and has authorized this call
+        for signer in unique_signers.iter() {
+            if !multisig_admin.admins.contains(&signer) {
+                panic_with_error!(env, PrinceError::NotAuthorized);
+            }
+            signer.require_auth();
         }
     }
 
@@ -298,23 +304,13 @@ impl PayoutRegistry {
      * @param name - The human-readable name of the organization.
      * @returns The generated 32-byte organization ID.
      */
-    pub fn register_org(env: Env, admin: Address, name: String) -> BytesN<32> {
+    pub fn register_org(env: Env, id: Symbol, name: String, admin: Address) {
         admin.require_auth();
-
-        // Generate a deterministic ID based on admin address and name
-        let admin_val = admin.to_val();
-        let name_val = name.clone().to_val();
-        let mut combined_data = Vec::new(&env);
-        combined_data.push_back(admin_val);
-        combined_data.push_back(name_val);
-        let combined_bytes = Bytes::from_val(&env, &combined_data.to_val());
-        let id_bytes = env.crypto().sha256(&combined_bytes);
-        let id = Symbol::new(&env, "org_id");
 
         let org_key = DataKey::Organization(id.clone());
 
         if env.storage().persistent().has(&org_key) {
-            panic_with_error!(&env, PrincessError::OrgAlreadyRegistered);
+            panic_with_error!(&env, PrinceError::OrgAlreadyRegistered);
         }
 
         let mut admins = Vec::new(&env);
@@ -352,11 +348,9 @@ impl PayoutRegistry {
             .extend_ttl(&DataKey::OrgBudget(id.clone()), PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "org_registered")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "org_registered")),
             (id.clone(), admin.clone()),
         );
-
-        id_bytes.into()
     }
 
     pub fn get_org(env: Env, id: Symbol) -> Organization {
@@ -366,29 +360,30 @@ impl PayoutRegistry {
         env.storage()
             .persistent()
             .get(&DataKey::Organization(id))
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::OrgNotFound))
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::OrgNotFound))
     }
 
     /// Update the IPFS CID for an organization's metadata (Logo/Description).
-    /// Requires authorization from at least one organization admin.
-    pub fn update_org_metadata(env: Env, id: Symbol, metadata_cid: String) {
+    /// Requires authorization from the specified organization admin.
+    pub fn update_org_metadata(env: Env, id: Symbol, admin: Address, metadata_cid: String) {
+        admin.require_auth();
+
         let org_key = DataKey::Organization(id.clone());
         let mut org: Organization = env.storage().persistent()
             .get(&org_key)
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::OrgNotFound));
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::OrgNotFound));
 
-        // Authorization: Check if the caller is one of the registered admins
+        // Verify that the signer is indeed an admin of the organization
         let mut is_authorized = false;
         for i in 0..org.admins.len() {
-            let admin = org.admins.get(i).unwrap();
-            if admin.has_auth() {
+            if org.admins.get(i).unwrap() == admin {
                 is_authorized = true;
                 break;
             }
         }
 
         if !is_authorized {
-            panic_with_error!(&env, PrincessError::NotAuthorized);
+            panic_with_error!(&env, PrinceError::NotAuthorized);
         }
 
         org.metadata_cid = Some(metadata_cid.clone());
@@ -396,7 +391,7 @@ impl PayoutRegistry {
         env.storage().persistent().extend_ttl(&org_key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "OrgMetadataUpdated")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "OrgMetadataUpdated")),
             (id, metadata_cid),
         );
     }
@@ -408,7 +403,7 @@ impl PayoutRegistry {
         from.require_auth_for_args((org_id.clone(), from.clone(), amount).into_val(&env));
 
         if amount <= 0 {
-            panic_with_error!(&env, PrincessError::InvalidAmount);
+            panic_with_error!(&env, PrinceError::InvalidAmount);
         }
 
         if !env
@@ -416,13 +411,13 @@ impl PayoutRegistry {
             .persistent()
             .has(&DataKey::Organization(org_id.clone()))
         {
-            panic_with_error!(&env, PrincessError::OrgNotFound);
+            panic_with_error!(&env, PrinceError::OrgNotFound);
         }
 
         // Effects: Update the Persistent Storage first (CEI)
         let budget_key = DataKey::OrgBudget(org_id.clone());
         let current_budget: i128 = env.storage().persistent().get(&budget_key).unwrap_or(0);
-        let new_budget = current_budget.checked_add(amount).unwrap_or_else(|| panic_with_error!(&env, PrincessError::BudgetOverflow));
+        let new_budget = current_budget.checked_add(amount).unwrap_or_else(|| panic_with_error!(&env, PrinceError::BudgetOverflow));
         env.storage()
             .persistent()
             .set(&budget_key, &new_budget);
@@ -437,36 +432,27 @@ impl PayoutRegistry {
         token_client.transfer(&from, &env.current_contract_address(), &amount);
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "OrgFunded")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "OrgFunded")),
             (org_id, from, amount),
         );
     }
 
-    pub fn add_admin(env: Env, org_id: Symbol, new_admin: Address) {
+    pub fn add_admin(env: Env, org_id: Symbol, admin: Address, new_admin: Address) {
+        admin.require_auth();
         let mut org = Self::get_org(env.clone(), org_id.clone());
         
-        // Authorization: Check if the caller is an existing admin
-        let caller = env.current_contract_address();
-        let mut is_authorized = false;
-        for i in 0..org.admins.len() {
-            let admin = org.admins.get(i).unwrap();
-            if caller == admin {
-                is_authorized = true;
-                break;
-            }
-        }
-        
-        if !is_authorized {
-            panic_with_error!(&env, PrincessError::NotAuthorized);
+        // Authorization: Check if the passed admin is an existing admin
+        if !org.admins.contains(&admin) {
+            panic_with_error!(&env, PrinceError::NotAuthorized);
         }
 
         if org.admins.len() >= 10 {
-            panic_with_error!(&env, PrincessError::MaxAdminLimitReached);
+            panic_with_error!(&env, PrinceError::MaxAdminLimitReached);
         }
 
         for i in 0..org.admins.len() {
             if org.admins.get(i).unwrap() == new_admin {
-                panic_with_error!(&env, PrincessError::AdminAlreadyExists);
+                panic_with_error!(&env, PrinceError::AdminAlreadyExists);
             }
         }
 
@@ -475,31 +461,22 @@ impl PayoutRegistry {
         env.storage().persistent().extend_ttl(&DataKey::Organization(org_id.clone()), PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "AdminAdded")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "AdminAdded")),
             (org_id, new_admin),
         );
     }
 
-    pub fn remove_admin(env: Env, org_id: Symbol, admin_to_remove: Address) {
+    pub fn remove_admin(env: Env, org_id: Symbol, admin: Address, admin_to_remove: Address) {
+        admin.require_auth();
         let mut org = Self::get_org(env.clone(), org_id.clone());
         
-        // Authorization: Check if the caller is an existing admin
-        let caller = env.current_contract_address();
-        let mut is_authorized = false;
-        for i in 0..org.admins.len() {
-            let admin = org.admins.get(i).unwrap();
-            if caller == admin {
-                is_authorized = true;
-                break;
-            }
-        }
-        
-        if !is_authorized {
-            panic_with_error!(&env, PrincessError::NotAuthorized);
+        // Authorization: Check if the passed admin is an existing admin
+        if !org.admins.contains(&admin) {
+            panic_with_error!(&env, PrinceError::NotAuthorized);
         }
 
         if org.admins.len() <= 1 {
-            panic_with_error!(&env, PrincessError::CannotRemoveLastAdmin);
+            panic_with_error!(&env, PrinceError::CannotRemoveLastAdmin);
         }
 
         let mut index = None;
@@ -516,11 +493,11 @@ impl PayoutRegistry {
                 env.storage().persistent().set(&DataKey::Organization(org_id.clone()), &org);
                 env.storage().persistent().extend_ttl(&DataKey::Organization(org_id.clone()), PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
             },
-            None => panic_with_error!(&env, PrincessError::NotAnAdmin),
+            None => panic_with_error!(&env, PrinceError::NotAnAdmin),
         }
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "AdminRemoved")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "AdminRemoved")),
             (org_id, admin_to_remove),
         );
     }
@@ -544,7 +521,7 @@ impl PayoutRegistry {
             .storage()
             .persistent()
             .get(&DataKey::OrgAdmin(org_id.clone()))
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::OrgNotFound));
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::OrgNotFound));
         admin.require_auth();
 
         if env
@@ -552,7 +529,7 @@ impl PayoutRegistry {
             .persistent()
             .has(&DataKey::MaintainerOrg(maintainer.clone()))
         {
-            panic_with_error!(&env, PrincessError::MaintainerAlreadyRegistered);
+            panic_with_error!(&env, PrinceError::MaintainerAlreadyRegistered);
         }
 
         env.storage()
@@ -584,7 +561,7 @@ impl PayoutRegistry {
             .extend_ttl(&maintainer_list_key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
         env.events().publish(
-    (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "MaintainerAdded")),
+    (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "MaintainerAdded")),
     (org_id, maintainer),
 );
     }
@@ -597,7 +574,7 @@ impl PayoutRegistry {
             .storage()
             .persistent()
             .get(&DataKey::MaintainerOrg(address.clone()))
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::MaintainerNotRegistered));
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::MaintainerNotRegistered));
         Maintainer { address, org_id }
     }
 
@@ -615,43 +592,34 @@ impl PayoutRegistry {
     // Payout Allocation & Claiming
     // ─────────────────────────────────────────────────────────────────────────
 
-    pub fn allocate_payout(env: Env, org_id: Symbol, maintainer: Address, amount: i128, unlock_timestamp: u64) {
+    pub fn allocate_payout(env: Env, org_id: Symbol, admin: Address, maintainer: Address, amount: i128, unlock_timestamp: u64) {
         Self::assert_active(&env);
         let org = Self::get_org(env.clone(), org_id.clone());
         
-        // Authorization: Check if caller is one of authorized admins
-        let caller = env.current_contract_address();
-        let mut is_authorized = false;
-        for i in 0..org.admins.len() {
-            let admin = org.admins.get(i).unwrap();
-            if caller == admin {
-                admin.require_auth_for_args((org_id.clone(), maintainer.clone(), amount, unlock_timestamp).into_val(&env));
-                is_authorized = true;
-                break;
-            }
+        // Authorization: Check if the passed admin is an existing admin
+        if !org.admins.contains(&admin) {
+            panic_with_error!(&env, PrinceError::NotAuthorized);
         }
 
-        if !is_authorized {
-            panic_with_error!(&env, PrincessError::NotAuthorized);
-        }
+        admin.require_auth_for_args((org_id.clone(), admin.clone(), maintainer.clone(), amount, unlock_timestamp).into_val(&env));
 
         if amount <= 0 {
-            panic_with_error!(&env, PrincessError::InvalidAmount);
+            panic_with_error!(&env, PrinceError::InvalidAmount);
         }
 
         let maintainer_org: Symbol = env
             .storage()
             .persistent()
             .get(&DataKey::MaintainerOrg(maintainer.clone()))
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::MaintainerNotRegistered));
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::MaintainerNotRegistered));
         if maintainer_org != org_id {
-            panic_with_error!(&env, PrincessError::MaintainerOrgMismatch);
+            panic_with_error!(&env, PrinceError::MaintainerOrgMismatch);
         }
 
         let budget_key = DataKey::OrgBudget(org_id.clone());
         let current_budget: i128 = env.storage().persistent().get(&budget_key).unwrap_or(0);
         if current_budget < amount {
-            panic_with_error!(&env, PrincessError::InsufficientBudget);
+            panic_with_error!(&env, PrinceError::InsufficientBudget);
         }
 
         env.storage()
@@ -667,15 +635,15 @@ impl PayoutRegistry {
             .persistent()
             .get(&balance_key)
             .unwrap_or(MaintainerPayout { amount: 0, unlock_timestamp: 0 });
-        current_payout.amount = current_payout.amount.checked_add(amount).unwrap_or_else(|| panic_with_error!(&env, PrincessError::PayoutOverflow));
+        current_payout.amount = current_payout.amount.checked_add(amount).unwrap_or_else(|| panic_with_error!(&env, PrinceError::PayoutOverflow));
         current_payout.unlock_timestamp = unlock_timestamp;
         env.storage().persistent().set(&balance_key, &current_payout);
         env.storage().persistent().extend_ttl(&balance_key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
         env.events().publish(
-    (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "PayoutAllocated")),
-    (org_id, maintainer, amount),
-);
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "PayoutAllocated")),
+            (org_id, maintainer, amount),
+        );
     }
 
     /// Allocate payouts to multiple maintainers in a single transaction.
@@ -702,16 +670,16 @@ impl PayoutRegistry {
             }
         }
         if !is_authorized {
-            panic_with_error!(&env, PrincessError::NotAuthorized);
+            panic_with_error!(&env, PrinceError::NotAuthorized);
         }
 
         // Enforce batch size limit to prevent out-of-gas errors
         if payouts.len() > 100 {
-            panic_with_error!(&env, PrincessError::BatchSizeExceeded);
+            panic_with_error!(&env, PrinceError::BatchSizeExceeded);
         }
 
         if payouts.is_empty() {
-            panic_with_error!(&env, PrincessError::EmptyBatch);
+            panic_with_error!(&env, PrinceError::EmptyBatch);
         }
 
         // Compute total payout sum and validate each entry before touching storage
@@ -719,24 +687,24 @@ impl PayoutRegistry {
         for i in 0..payouts.len() {
             let entry = payouts.get(i).unwrap();
             if entry.amount <= 0 {
-                panic_with_error!(&env, PrincessError::InvalidAmount);
+                panic_with_error!(&env, PrinceError::InvalidAmount);
             }
             let maintainer_org: Symbol = env
                 .storage()
                 .persistent()
                 .get(&DataKey::MaintainerOrg(entry.maintainer.clone()))
-                .unwrap_or_else(|| panic_with_error!(&env, PrincessError::MaintainerNotRegistered));
+                .unwrap_or_else(|| panic_with_error!(&env, PrinceError::MaintainerNotRegistered));
             if maintainer_org != org_id {
-                panic_with_error!(&env, PrincessError::MaintainerOrgMismatch);
+                panic_with_error!(&env, PrinceError::MaintainerOrgMismatch);
             }
-            total = total.checked_add(entry.amount).unwrap_or_else(|| panic_with_error!(&env, PrincessError::PayoutOverflow));
+            total = total.checked_add(entry.amount).unwrap_or_else(|| panic_with_error!(&env, PrinceError::PayoutOverflow));
         }
 
         // Verify the org has enough budget to cover the entire batch
         let budget_key = DataKey::OrgBudget(org_id.clone());
         let current_budget: i128 = env.storage().persistent().get(&budget_key).unwrap_or(0);
         if current_budget < total {
-            panic_with_error!(&env, PrincessError::InsufficientBudget);
+            panic_with_error!(&env, PrinceError::InsufficientBudget);
         }
 
         // Deduct total from org budget in one write
@@ -751,14 +719,15 @@ impl PayoutRegistry {
         for i in 0..payouts.len() {
             let entry = payouts.get(i).unwrap();
             let balance_key = DataKey::MaintainerBalance(entry.maintainer.clone());
-            let current_balance: i128 = env
+            let mut current_payout: MaintainerPayout = env
                 .storage()
                 .persistent()
                 .get(&balance_key)
-                .unwrap_or(0_i128);
+                .unwrap_or(MaintainerPayout { amount: 0, unlock_timestamp: 0 });
+            current_payout.amount = current_payout.amount.checked_add(entry.amount).unwrap_or_else(|| panic_with_error!(&env, PrinceError::PayoutOverflow));
             env.storage()
                 .persistent()
-                .set(&balance_key, &(current_balance + entry.amount));
+                .set(&balance_key, &current_payout);
             env.storage()
                 .persistent()
                 .extend_ttl(&balance_key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
@@ -796,11 +765,11 @@ impl PayoutRegistry {
             .unwrap_or(MaintainerPayout { amount: 0, unlock_timestamp: 0 });
 
         if payout.amount == 0 {
-            panic_with_error!(&env, PrincessError::NoClaimableBalance);
+            panic_with_error!(&env, PrinceError::NoClaimableBalance);
         }
 
         if env.ledger().timestamp() < payout.unlock_timestamp {
-            panic_with_error!(&env, PrincessError::PayoutLocked);
+            panic_with_error!(&env, PrinceError::PayoutLocked);
         }
 
         let amount_to_claim = payout.amount;
@@ -818,7 +787,7 @@ impl PayoutRegistry {
         token_client.transfer(&env.current_contract_address(), &maintainer, &amount_to_claim);
 
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "PayoutClaimed")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "PayoutClaimed")),
             (maintainer, amount_to_claim),
         );
 
@@ -836,9 +805,9 @@ impl PayoutRegistry {
     /// 
     /// # Arguments
     /// * `env` - The contract environment
-    pub fn pause_protocol(env: Env) {
+    pub fn pause_protocol(env: Env, signers: Vec<Address>) {
         // Verify multisig authorization
-        Self::verify_multisig_auth(&env);
+        Self::verify_multisig_auth(&env, &signers);
         
         // Update the protocol state to paused
         env.storage().persistent().set(&DataKey::ProtocolState, &ProtocolState::Paused);
@@ -846,7 +815,7 @@ impl PayoutRegistry {
         
         // Emit pause event
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "ProtocolPaused")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "ProtocolPaused")),
             env.ledger().timestamp(),
         );
     }
@@ -857,9 +826,9 @@ impl PayoutRegistry {
     /// 
     /// # Arguments
     /// * `env` - The contract environment
-    pub fn unpause_protocol(env: Env) {
+    pub fn unpause_protocol(env: Env, signers: Vec<Address>) {
         // Verify multisig authorization
-        Self::verify_multisig_auth(&env);
+        Self::verify_multisig_auth(&env, &signers);
         
         // Update the protocol state to active
         env.storage().persistent().set(&DataKey::ProtocolState, &ProtocolState::Active);
@@ -867,7 +836,7 @@ impl PayoutRegistry {
         
         // Emit unpause event
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "ProtocolUnpaused")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "ProtocolUnpaused")),
             env.ledger().timestamp(),
         );
     }
@@ -884,13 +853,13 @@ impl PayoutRegistry {
     ///
     /// # Panics
     /// * If multisig authorization is insufficient.
-    pub fn propose_admin(env: Env, new_admin: Address) {
-        Self::verify_multisig_auth(&env);
+    pub fn propose_admin(env: Env, signers: Vec<Address>, new_admin: Address) {
+        Self::verify_multisig_auth(&env, &signers);
         env.storage()
             .persistent()
             .set(&DataKey::PendingAdmin, &new_admin);
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "AdminProposed")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "AdminProposed")),
             new_admin,
         );
     }
@@ -909,9 +878,9 @@ impl PayoutRegistry {
             .storage()
             .persistent()
             .get(&DataKey::PendingAdmin)
-            .unwrap_or_else(|| panic_with_error!(&env, PrincessError::NoPendingAdmin));
+            .unwrap_or_else(|| panic_with_error!(&env, PrinceError::NoPendingAdmin));
         if pending != new_admin {
-            panic_with_error!(&env, PrincessError::NotPendingAdmin);
+            panic_with_error!(&env, PrinceError::NotPendingAdmin);
         }
         // Build a new single-member multisig with threshold 1
         let mut admins = Vec::new(&env);
@@ -922,7 +891,7 @@ impl PayoutRegistry {
             .set(&DataKey::MultisigAdmin, &multisig_admin);
         env.storage().persistent().remove(&DataKey::PendingAdmin);
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "admin_transferred")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "admin_transferred")),
             new_admin,
         );
     }
@@ -943,16 +912,16 @@ impl PayoutRegistry {
     /// # Panics
     /// * If insufficient multisig signatures are provided
     /// * If the WASM hash is invalid
-    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
+    pub fn upgrade(env: Env, signers: Vec<Address>, new_wasm_hash: BytesN<32>) {
         // Verify multisig authorization
-        Self::verify_multisig_auth(&env);
+        Self::verify_multisig_auth(&env, &signers);
         
         // Perform the upgrade
         env.deployer().update_current_contract_wasm(new_wasm_hash.clone());
         
         // Emit upgrade event
         env.events().publish(
-            (Symbol::new(&env, "VeryPrincess"), Symbol::new(&env, "ContractUpgraded")),
+            (Symbol::new(&env, "VeryPrince"), Symbol::new(&env, "ContractUpgraded")),
             (new_wasm_hash, env.ledger().timestamp()),
         );
     }

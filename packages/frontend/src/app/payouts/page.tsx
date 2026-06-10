@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
 import { WalletButton } from "@/components/WalletButton";
@@ -78,7 +78,7 @@ export default function PayoutsPage() {
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
-        if (filenameMatch) {
+        if (filenameMatch && filenameMatch[1]) {
           filename = filenameMatch[1];
         }
       }

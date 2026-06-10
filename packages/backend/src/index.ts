@@ -1,6 +1,6 @@
 /**
  * @file index.ts
- * @description Fastify server entry point for the very-princess backend.
+ * @description Fastify server entry point for the Very-prince backend.
  *
  * This file is responsible for:
  *  1. Creating the Fastify instance with sensible defaults.
@@ -111,7 +111,7 @@ await server.register(errorHandler);
 await server.register(swagger, {
   swagger: {
     info: {
-      title: 'Very Princess API',
+      title: 'Very Prince API',
       description: 'Multi-organization maintenance payout infrastructure on the Stellar network',
       version: '0.1.0',
     },
@@ -139,8 +139,8 @@ await server.register(swaggerUi, {
     deepLinking: false,
   },
   uiHooks: {
-    onRequest: function (request, reply, next) { next() },
-    preHandler: function (request, reply, next) { next() },
+    onRequest: function (_request, _reply, next) { next() },
+    preHandler: function (_request, _reply, next) { next() },
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
@@ -171,6 +171,9 @@ await server.register(eventsRoutes, { prefix: "/api/events" });
 await server.register(organizationRoutes, { prefix: "/api/org" });
 await server.register(webhookRoutes, { prefix: "/api/org/:orgId/webhook" });
 await server.register(apiKeyRoutes, { prefix: "/api/org" });
+
+// Configure tRPC routes manually
+await configureTRPC(server);
 
 // ─── Notification Routes ──────────────────────────────────────────────────────
 
@@ -212,7 +215,7 @@ server.post("/indexer/sync", async () => {
 try {
   await server.listen({ port: SERVER_PORT, host: SERVER_HOST });
   server.log.info(
-    `very-princess backend listening on http://${SERVER_HOST}:${SERVER_PORT}`
+    `Very-prince backend listening on http://${SERVER_HOST}:${SERVER_PORT}`
   );
   
   // Start the background indexer service

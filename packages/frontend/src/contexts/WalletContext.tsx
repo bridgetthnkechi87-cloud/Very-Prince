@@ -12,7 +12,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { freighterApi } from '@stellar/freighter-api';
+import freighterApi from '@stellar/freighter-api';
 
 // ── Type Definitions ───────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 const getNetworkFromFreighter = async (): Promise<NetworkType> => {
   try {
-    const { network } = await freighterApi.getNetwork();
+    const network = await freighterApi.getNetwork();
     return network === 'PUBLIC' ? 'public' : 'testnet';
   } catch (error) {
     console.warn('Failed to get network from Freighter:', error);
@@ -52,8 +52,8 @@ const getNetworkFromFreighter = async (): Promise<NetworkType> => {
 
 const getPublicKeyFromFreighter = async (): Promise<string | null> => {
   try {
-    const { address } = await freighterApi.getAddress();
-    return address;
+    const publicKey = await freighterApi.getPublicKey();
+    return publicKey;
   } catch (error) {
     console.warn('Failed to get public key from Freighter:', error);
     return null;
@@ -82,7 +82,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     try {
       // Check if Freighter is installed
-      const isInstalled = await freighterApi.isFreighterInstalled();
+      const isInstalled = await freighterApi.isConnected();
       if (!isInstalled) {
         throw new Error('Freighter wallet is not installed. Please install it to continue.');
       }
@@ -155,7 +155,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   const checkConnection = useCallback(async () => {
     try {
-      const isInstalled = await freighterApi.isFreighterInstalled();
+      const isInstalled = await freighterApi.isConnected();
       if (!isInstalled) {
         setWalletState(prev => ({
           ...prev,
@@ -207,7 +207,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     };
 
     // Listen for network changes from Freighter
-    const unsubscribe = freighterApi.onNetworkChange?.(handleNetworkChange);
+    const unsubscribe = (freighterApi as any).onNetworkChange?.(handleNetworkChange);
 
     return () => {
       unsubscribe?.();

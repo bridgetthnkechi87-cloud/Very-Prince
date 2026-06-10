@@ -1,13 +1,13 @@
-# Webhook Verification Guide - Very Princess
+﻿# Webhook Verification Guide - Very Prince
 
 ## Overview
-Very Princess sends webhook events with HMAC SHA-256 signatures to verify the authenticity and integrity of webhook payloads.
+Very Prince sends webhook events with HMAC SHA-256 signatures to verify the authenticity and integrity of webhook payloads.
 
 ## Security Features
 
 ### HMAC SHA-256 Signatures
 - Each webhook payload is signed using the organization's unique webhook secret
-- Signature is sent in the `X-Very-Princess-Signature` header
+- Signature is sent in the `X-Very-prince-Signature` header
 - Prevents spoofing and ensures payload integrity
 
 ### Unique Secrets per Organization
@@ -16,15 +16,15 @@ Very Princess sends webhook events with HMAC SHA-256 signatures to verify the au
 - Secrets are stored securely in the database (not in plain text in responses)
 
 ### Timestamp Headers
-- `X-Very-Princess-Timestamp` header included for replay protection
+- `X-Very-prince-Timestamp` header included for replay protection
 - Recipients should reject webhooks older than 5 minutes
 
 ## Verification Process
 
 ### Step 1: Extract Headers
 ```javascript
-const signature = request.headers['x-very-princess-signature'];
-const timestamp = request.headers['x-very-princess-timestamp'];
+const signature = request.headers['x-Very-prince-signature'];
+const timestamp = request.headers['x-Very-prince-timestamp'];
 const payload = request.body; // Raw JSON string
 ```
 
@@ -83,8 +83,8 @@ import { createHmac } from 'crypto';
 import express from 'express';
 
 app.post('/webhook', express.raw({type: '*/*'}), (req, res) => {
-  const signature = req.headers['x-very-princess-signature'];
-  const timestamp = req.headers['x-very-princess-timestamp'];
+  const signature = req.headers['x-Very-prince-signature'];
+  const timestamp = req.headers['x-Very-prince-timestamp'];
   const payload = req.body.toString();
   
   // Verify timestamp
@@ -127,8 +127,8 @@ app = Flask(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    signature = request.headers.get('X-Very-Princess-Signature')
-    timestamp = request.headers.get('X-Very-Princess-Timestamp')
+    signature = request.headers.get('X-Very-prince-Signature')
+    timestamp = request.headers.get('X-Very-prince-Timestamp')
     payload = request.data.decode('utf-8')
     
     # Verify timestamp
@@ -193,8 +193,8 @@ func secureCompare(a, b string) bool {
 }
 
 func webhookHandler(c *gin.Context) {
-    signature := c.GetHeader("X-Very-Princess-Signature")
-    timestamp := c.GetHeader("X-Very-Princess-Timestamp")
+    signature := c.GetHeader("X-Very-prince-Signature")
+    timestamp := c.GetHeader("X-Very-prince-Timestamp")
     
     // Read raw body
     payload, _ := c.GetRawData()
@@ -292,15 +292,15 @@ func main() {
 # Test with valid signature
 curl -X POST http://localhost:3000/webhook \
   -H "Content-Type: application/json" \
-  -H "X-Very-Princess-Signature: $(echo -n '{"test": true}' | openssl dgst -sha256 -hmac 'your_webhook_secret' -binary | hex)" \
-  -H "X-Very-Princess-Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+  -H "X-Very-prince-Signature: $(echo -n '{"test": true}' | openssl dgst -sha256 -hmac 'your_webhook_secret' -binary | hex)" \
+  -H "X-Very-prince-Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
   -d '{"test": true}'
 
 # Test with invalid signature
 curl -X POST http://localhost:3000/webhook \
   -H "Content-Type: application/json" \
-  -H "X-Very-Princess-Signature: invalid_signature" \
-  -H "X-Very-Princess-Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+  -H "X-Very-prince-Signature: invalid_signature" \
+  -H "X-Very-prince-Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
   -d '{"test": true}'
 ```
 
@@ -336,7 +336,7 @@ testWebhookVerification();
 #### "Invalid signature" Error
 - **Cause**: Using wrong secret or incorrect signature calculation
 - **Solution**: 
-  1. Verify webhook secret matches what's in Very Princess
+  1. Verify webhook secret matches what's in Very Prince
   2. Ensure you're using the raw payload string (not parsed JSON)
   3. Check that you're using HMAC-SHA256 (not regular SHA256)
 
@@ -345,7 +345,7 @@ testWebhookVerification();
 - **Solution**:
   1. Check server clock synchronization
   2. Consider increasing tolerance window if needed
-  3. Check network latency between Very Princess and your server
+  3. Check network latency between Very Prince and your server
 
 #### Missing Headers
 - **Cause**: Proxy or load balancer stripping headers
@@ -363,8 +363,8 @@ testWebhookVerification();
 ## Support
 
 For webhook verification issues:
-- Documentation: https://github.com/olaleyeolajide81-sketch/Very-Princess
-- Check webhook test endpoint in Very Princess dashboard
+- Documentation: https://github.com/olaleyeolajide81-sketch/Very-prince
+- Check webhook test endpoint in Very Prince dashboard
 - Contact support with specific error details and headers received
 
 ## Security Considerations
@@ -377,6 +377,6 @@ For webhook verification issues:
 
 ### Additional Recommendations
 1. **Rate Limiting**: Implement rate limiting on webhook endpoints
-2. **IP Whitelisting**: Consider restricting webhook sources to Very Princess IPs
+2. **IP Whitelisting**: Consider restricting webhook sources to Very Prince IPs
 3. **Monitoring**: Monitor for unusual patterns or high failure rates
 4. **Fail Securely**: Default to rejecting webhooks on verification failures

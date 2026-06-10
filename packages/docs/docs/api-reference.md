@@ -6,7 +6,7 @@ sidebar_label: REST API
 
 # API Reference
 
-The very-princess REST API is served by the Fastify backend at `https://api.tradeflow.app`.
+The very-prince REST API is served by the Fastify backend at `https://api.tradeflow.app`.
 
 :::tip OpenAPI / Swagger
 The full machine-readable spec is available at [`/api-docs/json`](https://api.tradeflow.app/api-docs/json).

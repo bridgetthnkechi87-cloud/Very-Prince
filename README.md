@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>✨ very-princess</h1>
+  <h1>✨ very-prince</h1>
   <p><strong>A Stellar-Native Multi-Organization Payout Registry</strong></p>
-  <p><em>Built for Drips Wave 4</em></p>
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Stellar](https://img.shields.io/badge/Stellar-Soroban-black?logo=stellar)](https://stellar.org/soroban)
@@ -12,7 +11,7 @@
 
 ## 📖 Project Overview
 
-**very-princess** is a decentralized, on-chain payout registry built natively on the Stellar Soroban smart contract platform. It provides a transparent, secure, and highly efficient system for multi-organization maintenance payouts tailored for the open-source community and the Drips funding model.
+**very-prince** is a decentralized, on-chain payout registry built natively on the Stellar Soroban smart contract platform. It provides a transparent, secure, and highly efficient system for multi-organization maintenance payouts tailored for the open-source community.
 
 By leveraging Stellar Asset Contracts (SAC), organizations can register, build a public budget through community funding, and allocate testnet tokens to open-source maintainers. Maintainers interact directly with the smart contract via their self-custody wallets to claim their accumulated payouts, completely eliminating intermediaries.
 
@@ -43,8 +42,8 @@ The repository utilizes Turborepo to handle fast, concurrent package management.
 
 1. **Clone and Install Dependencies**
    ```bash
-   git clone https://github.com/your-org/very-princess.git
-   cd very-princess
+   git clone https://github.com/your-org/very-prince.git
+   cd very-prince
    npm install
    ```
 
@@ -78,7 +77,6 @@ To thoroughly evaluate the Wave 4 grant capabilities, follow this user journey:
    If your current Freighter account has been allocated a payout, you will see a highlighted balance on your specific Maintainer Card. Click the **Claim Payout** button directly on your card, approve the transaction in Freighter, and instantly watch the smart contract transfer the XLM to your self-custody wallet!
 
 ---
-> *Thank you to the Drips Community for reviewing this funding milestone. See `CONTRIBUTING.md` for our open-source extension goals during Wave 4!*
 ## 🗄️ Operations: Database Backups
 
 To prevent data loss, the PostgreSQL indexer database must be backed up daily. A script is provided at `scripts/backup.sh` that compresses the database to `.sql.gz` and securely transfers it to an AWS S3 bucket.
@@ -88,6 +86,6 @@ To execute this script automatically every day at 2:00 AM UTC, add the following
 
 ```cron
 # Run database backup daily at 02:00 AM
-0 2 * * * source /path/to/.env && /path/to/very-princess/scripts/backup.sh >> /var/log/very-princess-backup.log 2>&1
+0 2 * * * source /path/to/.env && /path/to/very-prince/scripts/backup.sh >> /var/log/very-prince-backup.log 2>&1
 ```
 Note: Ensure PGUSER, PGPASSWORD, PGDATABASE, and BACKUP_S3_BUCKET are set in the environment where the cron job executes, and that the AWS CLI is configured with the correct IAM roles.

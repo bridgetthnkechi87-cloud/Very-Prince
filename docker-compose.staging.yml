@@ -11,9 +11,9 @@ services:
       - RPC_URL=https://soroban-testnet.stellar.org
       - HORIZON_URL=https://horizon-testnet.stellar.org
       - NETWORK_PASSPHRASE=Test SDF Network ; September 2015
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/very_princess_staging
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/very_prince_staging
       - REDIS_URL=redis://redis:6379
-      - FRONTEND_URL=https://very-princess-staging.vercel.app
+      - FRONTEND_URL=https://very-prince-staging.vercel.app
     ports:
       - "3001:3001"
     depends_on:
@@ -24,7 +24,7 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=very_princess_staging
+      - POSTGRES_DB=very_prince_staging
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     volumes:

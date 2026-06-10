@@ -67,8 +67,8 @@ import {
   RPC_URL,
 } from "../config/env.js";
 import { withRetry } from "../utils/retry.js";
-import { decodeI128ToBigInt, stroopsToXlm, decodeBase64Xdr } from "../utils/xdrDecoder.js";
-import type { AccountInfo, ContractCallResult, PayoutEvent, ProfileStats } from "@very-princess/types";
+import { decodeI128ToBigInt, stroopsToXlm } from "../utils/xdrDecoder.js";
+import type { AccountInfo, ContractCallResult, PayoutEvent, ProfileStats } from "@very-prince/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -110,7 +110,7 @@ export class StellarService {
    */
   private async _callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
     return withRetry(fn, {
-      onRetry: (error, attempt) => {
+      onRetry: (_, attempt) => {
         if (attempt >= 3) {
           console.error(`[CRITICAL] High-priority: Rate limit backoff exceeded 3 times! (Attempt ${attempt})`);
         } else {
@@ -183,8 +183,8 @@ export class StellarService {
   async readAllOrganizations(): Promise<string[]> {
     const startLedger = parseInt(process.env["PROFILE_START_LEDGER"] ?? "1", 10);
     
-    // topic[0] = Symbol("VeryPrincess"), topic[1] = Symbol("org_registered")
-    const topic0 = nativeToScVal("VeryPrincess", { type: "symbol" }).toXDR("base64");
+    // topic[0] = Symbol("VeryPrince"), topic[1] = Symbol("org_registered")
+    const topic0 = nativeToScVal("VeryPrince", { type: "symbol" }).toXDR("base64");
     const topic1 = nativeToScVal("org_registered", { type: "symbol" }).toXDR("base64");
 
     const eventsResponse = await this.rpcServer.getEvents({
@@ -203,8 +203,10 @@ export class StellarService {
     for (const event of eventsResponse.events ?? []) {
       try {
         // topic[2] = orgId Symbol
-        const orgId = scValToNative(event.topic[2]) as string;
-        orgIds.add(orgId);
+        if (event.topic[2]) {
+          const orgId = scValToNative(event.topic[2]) as string;
+          orgIds.add(orgId);
+        }
       } catch {
         // Skip malformed events
       }
@@ -251,7 +253,7 @@ export class StellarService {
     admin: string;
     budgetStroops: string;
     budgetXlm: string;
-    metadataCid?: string;
+    metadataCid?: string | undefined;
   }> {
     // Get organization data from DataKey::Org(id)
     const orgResult = await this._simulateContractCall("get_org", [
@@ -332,8 +334,7 @@ export class StellarService {
           : "unknown";
 
         // Use decodeI128ToBigInt for proper i128 handling (prevents JS number precision loss)
-        const valueScVal = decodeBase64Xdr(event.value);
-        const amount = decodeI128ToBigInt(valueScVal);
+        const amount = decodeI128ToBigInt(event.value);
 
         orgSet.add(orgId);
         totalStroops += amount;
@@ -442,7 +443,7 @@ export class StellarService {
         },
       ],
       limit,
-    }));
+    } as any));
   }
 
   /**
@@ -538,10 +539,12 @@ export class StellarService {
     signerSecret: string,
     unlockTimestamp: number = 0
   ): Promise<ContractCallResult> {
+    const adminAddress = Keypair.fromSecret(signerSecret).publicKey();
     return this._submitContractCall(
       "allocate_payout",
       [
         nativeToScVal(orgId, { type: "symbol" }),
+        nativeToScVal(adminAddress, { type: "address" }),
         nativeToScVal(maintainerAddress, { type: "address" }),
         nativeToScVal(amountStroops, { type: "i128" }),
         nativeToScVal(unlockTimestamp, { type: "u64" }),
@@ -700,9 +703,7 @@ export class StellarService {
     }
 
     // Prepare the transaction for signing
-    const preparedTx = await this._callWithRetry(() =>
-      this.rpcServer.prepareTransaction(transaction, simResult)
-    );
+    const preparedTx = SorobanRpc.assembleTransaction(transaction, simResult).build();
 
     return preparedTx.toXDR();
   }
@@ -735,6 +736,14 @@ export class StellarService {
       value: scValToNative(getResult.returnValue as xdr.ScVal),
       transactionHash: sendResult.hash,
     };
+  }
+
+  /**
+   * Helper to retrieve all payouts for a maintainer address.
+   */
+  async getMaintainerPayouts(address: string) {
+    const stats = await this.readProfileStats(address);
+    return stats.payouts;
   }
 }
 

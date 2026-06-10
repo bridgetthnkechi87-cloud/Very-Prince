@@ -17,27 +17,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = org.name ?? params.id;
     const budgetLine = budget?.xlm ? `Budget: ${budget.xlm} XLM` : "";
-    const description = `${title} is an organization on Very Princess. ${budgetLine}`.trim();
+    const description = `${title} is an organization on Very Prince. ${budgetLine}`.trim();
 
     return {
       title,
       description,
       openGraph: {
-        title: `${title} | Very Princess`,
+        title: `${title} | Very Prince`,
         description,
         type: "website",
       },
       twitter: {
         card: "summary_large_image",
-        title: `${title} | Very Princess`,
+        title: `${title} | Very Prince`,
         description,
       },
     };
   } catch {
     return {
-      title: `Org: ${params.id} | Very Princess`,
+      title: `Org: ${params.id} | Very Prince`,
       description:
-        "View this organization on Very Princess, built on Stellar Soroban.",
+        "View this organization on Very Prince, built on Stellar Soroban.",
     };
   }
 }

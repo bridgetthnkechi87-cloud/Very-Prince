@@ -155,7 +155,7 @@ export const statsController = {
     * Get top maintainers ranked by total earnings.
     * 
     * This endpoint identifies the most impactful contributors across the entire
-    * Very Princess ecosystem. 
+    * Very Prince ecosystem. 
     * 
     * Ranking Logic:
     * - Primary: Total earnings in Stroops (highest first).

@@ -1,10 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { WalletButton } from "@/components/WalletButton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/getDictionary";
-import type { Dictionary } from "@/lib/getDictionary";
 
 interface HomePageProps {
   params: {
@@ -54,7 +52,7 @@ export default async function HomePage({ params }: HomePageProps) {
               <span className="text-sm font-bold text-white">VP</span>
             </div>
             <span className="text-sm font-semibold tracking-tight text-white">
-              very-princess
+              very-prince
             </span>
             {/* Network badge */}
             <span className="badge border border-stellar-teal/30 bg-stellar-teal/10 text-stellar-teal">
@@ -115,7 +113,7 @@ export default async function HomePage({ params }: HomePageProps) {
               {dictionary.home.open_dashboard}
             </Link>
             <a
-              href="https://github.com/very-princess"
+              href="https://github.com/Zakky-Fatty/Very-prince"
               target="_blank"
               rel="noopener noreferrer"
               id="view-github-btn"
@@ -156,15 +154,6 @@ export default async function HomePage({ params }: HomePageProps) {
             className="underline-offset-2 hover:underline"
           >
             {dictionary.navigation.stellar_network}
-          </a>{" "}
-          ·{" "}
-          <a
-            href="https://drips.network"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline-offset-2 hover:underline"
-          >
-            {dictionary.navigation.drips}
           </a>
         </p>
       </footer>

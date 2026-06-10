@@ -16,7 +16,6 @@ export function WalletTest() {
     error,
     connectWallet,
     disconnectWallet,
-    signTransaction,
   } = useWallet();
 
   const handleTestTransaction = async () => {

@@ -37,7 +37,7 @@ const AddressParamsSchema = z.object({
 interface ExportRecord {
   date: string;
   orgId: string;
-  orgName?: string;
+  orgName: string | undefined;
   maintainerAddress: string;
   amountXlm: string;
   amountStroops: string;
@@ -144,7 +144,7 @@ export const exportRoutes: FastifyPluginAsync = async (fastify) => {
             // Convert stroops to XLM
             amountXlm = (Number(amountStroops) / 10_000_000).toFixed(7);
           } catch (error) {
-            fastify.log.error("Error parsing transaction raw data:", error);
+            fastify.log.error(error as Error, "Error parsing transaction raw data");
           }
 
           return {
@@ -225,7 +225,7 @@ export const exportRoutes: FastifyPluginAsync = async (fastify) => {
           };
         }
       } catch (error) {
-        fastify.log.error("Export error:", error);
+        fastify.log.error(error as Error, "Export error");
         return reply.status(500).send({
           error: "Failed to export data",
           message: error instanceof Error ? error.message : "Unknown error",

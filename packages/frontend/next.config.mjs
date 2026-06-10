@@ -1,5 +1,5 @@
-/**
- * Next.js configuration for the very-princess frontend.
+﻿/**
+ * Next.js configuration for the Very-prince frontend.
  *
  * Key notes:
  * - `NEXT_PUBLIC_*` variables are inlined at build time and safe for the browser.

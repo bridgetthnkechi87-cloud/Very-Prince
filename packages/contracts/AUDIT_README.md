@@ -169,6 +169,6 @@ All state-changing functions follow CEI pattern:
 ## Contact Information
 
 For audit questions or clarification:
-- Repository: https://github.com/olaleyeolajide81-sketch/Very-Princess
+- Repository: https://github.com/Zakky-Fatty/Very-prince
 - Contract: packages/contracts/src/lib.rs
 - Tests: packages/contracts/src/tests.rs

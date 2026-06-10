@@ -6,7 +6,7 @@ sidebar_label: Getting Started as an Org
 
 # Getting Started as an Organization
 
-This guide walks you through registering your organization on the very-princess payout registry and allocating payouts to your maintainers.
+This guide walks you through registering your organization on the very-prince payout registry and allocating payouts to your maintainers.
 
 ## Prerequisites
 

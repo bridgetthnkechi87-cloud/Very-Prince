@@ -8,16 +8,15 @@
  */
 
 import * as cron from 'node-cron';
-import { RPC_URL, CONTRACT_ID, DEPLOYMENT_LEDGER } from '../config/env.js';
+import { CONTRACT_ID, DEPLOYMENT_LEDGER } from '../config/env.js';
 import { stellarService } from './stellarService.js';
 import { prisma } from './db.js';
 import { emitSSEEvent } from '../routes/events.js';
-import { webhookService } from './WebhookService.js';
+import { webhookService } from './webhookService.js';
 import {
   decodeSorobanEvent,
   parseContractEvent,
   stroopsToXlm,
-  type RawSorobanEvent,
   type ContractEvent,
   type PayoutAllocatedEvent,
   type OrgFundedEvent,
@@ -25,24 +24,7 @@ import {
   type MaintainerAddedEvent,
 } from '../utils/xdrDecoder.js';
 
-/**
- * Extract the event index from the raw Soroban event.
- * The event ID format is typically "{ledger}-{eventIndex}" or the pagingToken contains this info.
- */
-function extractEventIndex(rawEvent: RawSorobanEvent): number {
-  // The pagingToken or id field often contains the event index
-  // Format varies by RPC version, but we can parse from the id field
-  if (rawEvent.id) {
-    const parts = rawEvent.id.split('-');
-    if (parts.length > 1) {
-      return parseInt(parts[parts.length - 1], 10);
-    }
-  }
-  // Fallback: use a hash of the event data to generate a consistent index
-  // This ensures the same event always gets the same index
-  const hash = rawEvent.txHash + rawEvent.ledger.toString();
-  return parseInt(hash.slice(-8), 16) % 10000;
-}
+
 
 export class IndexerService {
   private isRunning = false;
@@ -67,7 +49,6 @@ export class IndexerService {
     this.cronJob = cron.schedule(cronExpression, async () => {
       await this.syncBlockchainData();
     }, {
-      scheduled: true,
       timezone: 'UTC'
     });
 
@@ -103,16 +84,7 @@ export class IndexerService {
     return state.lastProcessedLedger;
   }
 
-  /**
-   * Update the last processed ledger in the database
-   */
-  private async updateCursor(ledger: number): Promise<void> {
-    await prisma.indexerState.upsert({
-      where: { id: this.CURSOR_ID },
-      update: { lastProcessedLedger: ledger },
-      create: { id: this.CURSOR_ID, lastProcessedLedger: ledger },
-    });
-  }
+
 
   /**
    * Sync blockchain data by fetching the latest contract state
@@ -140,9 +112,12 @@ export class IndexerService {
 
         for (let i = 0; i < eventsResponse.events.length; i++) {
           const rawEvent = eventsResponse.events[i];
+          if (!rawEvent) {
+            continue;
+          }
           try {
             // Decode the Base64-encoded XDR event data
-            const decodedEvent = decodeSorobanEvent(rawEvent as RawSorobanEvent);
+            const decodedEvent = decodeSorobanEvent(rawEvent);
 
             // Parse into contract-specific event type
             const contractEvent = parseContractEvent(decodedEvent);

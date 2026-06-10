@@ -5,7 +5,7 @@ async function testLeaderboard() {
   console.log("Seeding test transactions...");
 
   const now = new Date();
-  const addresses = [
+  const addresses: [string, string, string] = [
     "GABC1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ123456",
     "GXYZ9876543210ZYXWVUTSRQPONMLKJIHGFEDCBA098765",
     "GDEF4567890123HIJKLMNOPQRSTUVWXYZABCDEFGHIJKL",
@@ -43,7 +43,7 @@ async function testLeaderboard() {
   // Verification
   if (leaderboard.length > 0) {
     console.log("✅ Leaderboard fetched successfully.");
-    if (leaderboard[0].walletAddress === addresses[1]) {
+    if (leaderboard[0]?.walletAddress === addresses[1]) {
       console.log("✅ Sorting is correct (highest volume first).");
     }
     if (leaderboard.every(entry => entry.truncatedAddress.length === 13)) {

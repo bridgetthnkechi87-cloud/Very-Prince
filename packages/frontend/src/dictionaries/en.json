@@ -15,18 +15,17 @@
     "dashboard": "Dashboard",
     "leaderboard": "Leaderboard",
     "github": "View on GitHub",
-    "stellar_network": "Stellar Network",
-    "drips": "Drips"
+    "stellar_network": "Stellar Network"
   },
   "home": {
-    "title": "very-princess — Stellar Payout Registry",
+    "title": "very-prince — Stellar Payout Registry",
     "description": "A decentralised payout registry for open-source maintainers, built on Stellar Soroban. Connect your Freighter wallet to view and claim your payouts.",
     "hero_title": "Open Source",
     "hero_subtitle": "Payout Registry",
     "hero_description": "A transparent, on-chain system for multi-organization maintenance payouts. Organizations register, allocate, and maintainers self-custody their contributions — all on Stellar.",
     "open_dashboard": "Open Dashboard →",
-    "badge_text": "Built on Stellar Soroban · Drips Wave 4",
-    "footer_text": "very-princess is open source — MIT Licensed"
+    "badge_text": "Built on Stellar Soroban",
+    "footer_text": "very-prince is open source — MIT Licensed"
   },
   "features": {
     "on_chain": {
@@ -43,7 +42,7 @@
     },
     "open_source": {
       "title": "Open Source",
-      "description": "Built for the Drips community funding model. Fork it, extend it, contribute. See CONTRIBUTING.md."
+      "description": "Open source and community-driven. Fork it, extend it, contribute. See CONTRIBUTING.md."
     }
   },
   "dashboard": {

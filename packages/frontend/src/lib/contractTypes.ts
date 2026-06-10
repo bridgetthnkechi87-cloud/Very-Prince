@@ -18,7 +18,7 @@ export interface Organization {
   /** Stellar address of the organization admin. */
   admin: string;
   /** IPFS Content Identifier for extended metadata (Logo, Description). */
-  metadataCid?: string;
+  metadataCid?: string | undefined;
 }
 
 /** Mirrors the `Maintainer` contracttype from PayoutRegistry. */

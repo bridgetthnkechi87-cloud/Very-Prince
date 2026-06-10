@@ -1,5 +1,5 @@
 [package]
-name = "very-princess-contracts"
+name = "very-prince-contracts"
 version = "0.1.0"
 edition = "2021"
 description = "PayoutRegistry — multi-organization maintenance payout smart contract on Stellar Soroban."

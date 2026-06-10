@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { FilterControls } from '@/components/FilterControls';
 import { useCanvas } from '@/hooks/useCanvas';
 import {
@@ -12,8 +12,6 @@ import {
   applyCrop,
   applyResize,
   applyRotate,
-  drawImageOnCanvas,
-  exportCanvas,
   loadImage,
 } from '@/utils/imageProcessing';
 
@@ -40,9 +38,7 @@ export function ImageEditor() {
     overlayRef,
     history,
     historyIndex,
-    drawMode,
     setDrawMode,
-    setAnnotationSettings,
     setCanvasSize,
     loadCanvasImage,
     undo,
@@ -57,11 +53,6 @@ export function ImageEditor() {
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
-
-  const beforeAfterControls = useMemo(
-    () => ({ isActive: comparisonMode }),
-    [comparisonMode]
-  );
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -96,12 +87,7 @@ export function ImageEditor() {
     applyCanvasFilters(canvas, next, filter);
     pushHistory();
   };
-    setAdjustments(next);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    mergeOverlay();
-    applyCanvasFilters(canvas, next, filter);
-  };
+
 
   const handleFilterChange = (nextFilter: FilterType) => {
     setFilter(nextFilter);

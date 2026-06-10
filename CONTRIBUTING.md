@@ -1,6 +1,6 @@
-# Contributing to very-princess
+﻿# Contributing to Very-prince
 
-Thank you for your interest in contributing! very-princess is an open-source infrastructure project built on Stellar Soroban. We welcome contributions of all kinds — from fixing typos to implementing new contract features.
+Thank you for your interest in contributing! Very-prince is an open-source infrastructure project built on Stellar Soroban. We welcome contributions of all kinds — from fixing typos to implementing new contract features.
 
 ---
 
@@ -29,8 +29,8 @@ This project follows the [Contributor Covenant](https://www.contributor-covenant
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/very-princess.git
-   cd very-princess
+   git clone https://github.com/<your-username>/Very-prince.git
+   cd Very-prince
    ```
 3. **Install dependencies** (see README Prerequisites section first):
    ```bash

@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef } from 'react';
-import useSWR, { mutate } from 'swr';
+import { mutate } from 'swr';
 
 export interface SSEEvent {
   type: string;
@@ -105,8 +105,6 @@ export function useSSE(url?: string) {
  * Hook that combines SSE with SWR for automatic cache invalidation
  */
 export function useSSEWithSWR(sseUrl?: string) {
-  const sse = useSSE(sseUrl);
-  
   // You can add additional SWR-related logic here
-  return sse;
+  return useSSE(sseUrl);
 }

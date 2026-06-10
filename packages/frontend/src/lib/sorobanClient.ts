@@ -17,7 +17,7 @@ import {
   Horizon,
 } from "@stellar/stellar-sdk";
 import type { MaintainerBalance, Organization } from "./contractTypes";
-import { PrincessError, PrincessErrorMessage } from "@very-princess/types";
+import { PrinceError, PrinceErrorMessage } from "@very-prince/types";
 
 // ─── Network Configuration ────────────────────────────────────────────────────
 
@@ -62,19 +62,17 @@ class SorobanClient {
 
       // Handle transaction result error
       const returnValue = errorResponse.returnValue;
-      if (returnValue) {
-        // @ts-ignore - _arm is internal to ScVal objects in stellar-sdk
-        if (returnValue._arm === "error") {
+      // @ts-ignore - _arm is internal to ScVal objects in stellar-sdk
+      if (returnValue && returnValue._arm === "error") {
+        // @ts-ignore
+        const errorVal = returnValue._value;
+        // @ts-ignore
+        if (errorVal._arm === "contract") {
           // @ts-ignore
-          const errorVal = returnValue._value;
-          // @ts-ignore
-          if (errorVal._arm === "contract") {
-            // @ts-ignore
-            const errorCode = errorVal._value as number;
-            const message = PrincessErrorMessage[errorCode as PrincessError];
-            if (message) return message;
-            return `Contract Error: ${errorCode}`;
-          }
+          const errorCode = errorVal._value as number;
+          const message = PrinceErrorMessage[errorCode as PrinceError];
+          if (message) return message;
+          return `Contract Error: ${errorCode}`;
         }
       }
 
@@ -250,6 +248,7 @@ class SorobanClient {
       .addOperation(
         contract.call("allocate_payout",
           nativeToScVal(orgId, { type: "symbol" }),
+          nativeToScVal(adminAddress, { type: "address" }),
           nativeToScVal(maintainerAddress, { type: "address" }),
           nativeToScVal(amountStroops, { type: "i128" }),
           nativeToScVal(0, { type: "u64" })
@@ -282,6 +281,7 @@ class SorobanClient {
       .addOperation(
         contract.call("update_org_metadata",
           nativeToScVal(orgId, { type: "symbol" }),
+          nativeToScVal(adminAddress, { type: "address" }),
           nativeToScVal(metadataCid, { type: "string" })
         )
       )

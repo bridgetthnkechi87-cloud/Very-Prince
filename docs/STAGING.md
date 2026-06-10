@@ -1,6 +1,6 @@
-# Staging Environment Setup
+﻿# Staging Environment Setup
 
-This document explains how the staging environment is configured and deployed for the Very-Princess project.
+This document explains how the staging environment is configured and deployed for the Very-prince project.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The staging environment runs on Stellar Testnet and provides a live preview envi
 
 ## Architecture
 
-- **Frontend**: Deployed to Vercel at `https://very-princess-staging.vercel.app`
+- **Frontend**: Deployed to Vercel at `https://Very-prince-staging.vercel.app`
 - **Backend**: Deployed as Docker container on staging server
 - **Database**: PostgreSQL test database
 - **Cache**: Redis instance
@@ -40,7 +40,7 @@ The staging environment uses the following configuration:
 - `STELLAR_NETWORK=testnet`
 - `RPC_URL=https://soroban-testnet.stellar.org`
 - `HORIZON_URL=https://horizon-testnet.stellar.org`
-- `FRONTEND_URL=https://very-princess-staging.vercel.app`
+- `FRONTEND_URL=https://Very-prince-staging.vercel.app`
 
 ### Required Secrets
 
@@ -71,7 +71,7 @@ npm run staging:stop
 
 ## Monitoring
 
-- **Frontend**: Available at `https://very-princess-staging.vercel.app`
+- **Frontend**: Available at `https://Very-prince-staging.vercel.app`
 - **Backend**: Health check at `https://your-staging-server.com/health`
 - **Database**: PostgreSQL logs available in Docker container
 - **Redis**: Connection status monitored via application logs
@@ -111,12 +111,12 @@ If automatic deployment fails, you can deploy manually:
 
 ```bash
 # Build and push Docker image
-docker build -f packages/backend/Dockerfile -t ghcr.io/your-org/very-princess:staging .
-docker push ghcr.io/your-org/very-princess:staging
+docker build -f packages/backend/Dockerfile -t ghcr.io/your-org/Very-prince:staging .
+docker push ghcr.io/your-org/Very-prince:staging
 
 # Deploy to staging server
 ssh user@staging-server
-cd /opt/very-princess
+cd /opt/Very-prince
 docker-compose -f docker-compose.staging.yml pull
 docker-compose -f docker-compose.staging.yml up -d
 ```

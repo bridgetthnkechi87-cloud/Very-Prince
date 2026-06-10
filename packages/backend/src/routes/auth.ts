@@ -15,7 +15,7 @@
 
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
-import { authController } from "../controllers/AuthController.js";
+import { authController } from "../controllers/authController.js";
 
 // ─── Validation Schemas ──────────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
           data: nonceData,
         });
       } catch (error) {
-        fastify.log.error("Failed to generate nonce:", error);
+        fastify.log.error(error as Error, "Failed to generate nonce:");
         
         return reply.status(500).send({
           success: false,
@@ -224,7 +224,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
 
         return reply.send(result);
       } catch (error) {
-        fastify.log.error("Failed to verify signature:", error);
+        fastify.log.error(error as Error, "Failed to verify signature:");
         
         if (error instanceof Error && error.message.includes("Invalid or expired nonce")) {
           return reply.status(401).send({
