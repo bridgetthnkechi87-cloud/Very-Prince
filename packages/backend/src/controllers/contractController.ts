@@ -1,4 +1,7 @@
-import { organizationService, PaginatedOrgsResponse } from "../services/organizationService.js";
+import {
+  organizationService,
+  PaginatedOrgsResponse,
+} from "../services/organizationService.js";
 import { payoutService } from "../services/payoutService.js";
 import { stellarService } from "../services/stellarService.js";
 
@@ -14,6 +17,13 @@ export interface MaintainersResponse {
   orgId: string;
   maintainers: string[];
   count: number;
+  meta: {
+    // Define meta for pagination functions
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+  };
 }
 
 export interface BalanceResponse {
@@ -59,7 +69,11 @@ export const contractController = {
   /**
    * Fetch a paginated list of organizations.
    */
-  async getOrganizations(page: number, limit: number, search?: string): Promise<PaginatedOrgsResponse> {
+  async getOrganizations(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<PaginatedOrgsResponse> {
     return organizationService.getOrganizations(page, limit, search);
   },
 
@@ -70,10 +84,15 @@ export const contractController = {
     id: string,
     name: string,
     admin: string,
-    signerSecret: string
+    signerSecret: string,
   ): Promise<FundResponse> {
-    const result = await organizationService.registerOrganization(id, name, admin, signerSecret);
-    
+    const result = await organizationService.registerOrganization(
+      id,
+      name,
+      admin,
+      signerSecret,
+    );
+
     return {
       success: result.success,
       transactionHash: result.transactionHash,
@@ -93,12 +112,30 @@ export const contractController = {
   /**
    * Fetch the ordered list of maintainer addresses for an organization.
    */
-  async getMaintainers(orgId: string): Promise<MaintainersResponse> {
-    const maintainers = await organizationService.getMaintainers(orgId);
+  async getMaintainers(
+    orgId: string,
+    page = 1,
+    limit = 20
+  ): Promise<MaintainersResponse> {
+    // The Soroban contract has no native pagination for this read, so we
+    // fetch the full maintainer list and paginate in-memory.
+    const allMaintainers = await organizationService.getMaintainers(orgId);
+    const totalCount = allMaintainers.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+
+    const skip = (page - 1) * limit;
+    const maintainers = allMaintainers.slice(skip, skip + limit);
+
     return {
       orgId,
       maintainers,
       count: maintainers.length,
+      meta: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+      },
     };
   },
 
@@ -112,7 +149,9 @@ export const contractController = {
   /**
    * Fetch the claimable balance for a maintainer address.
    */
-  async getClaimableBalance(maintainerAddress: string): Promise<BalanceResponse> {
+  async getClaimableBalance(
+    maintainerAddress: string,
+  ): Promise<BalanceResponse> {
     return payoutService.getClaimableBalance(maintainerAddress);
   },
 
@@ -123,13 +162,13 @@ export const contractController = {
     orgId: string,
     fromAddress: string,
     amountStroops: string,
-    signerSecret: string
+    signerSecret: string,
   ): Promise<FundResponse> {
     const result = await payoutService.fundOrg(
       orgId,
       fromAddress,
       amountStroops,
-      signerSecret
+      signerSecret,
     );
     return {
       success: result.success,
@@ -147,13 +186,13 @@ export const contractController = {
     orgId: string,
     maintainerAddress: string,
     amountStroops: string,
-    signerSecret: string
+    signerSecret: string,
   ): Promise<PayoutResponse> {
     const result = await payoutService.allocatePayout(
       orgId,
       maintainerAddress,
       amountStroops,
-      signerSecret
+      signerSecret,
     );
     return {
       success: result.success,
@@ -167,15 +206,23 @@ export const contractController = {
   /**
    * Create a claim payout transaction for a maintainer.
    */
-  async createClaimTransaction(orgId: string, maintainerAddress: string): Promise<ClaimTransactionResponse> {
-    const transactionXdr = await stellarService.createClaimPayoutTransaction(orgId, maintainerAddress);
+  async createClaimTransaction(
+    orgId: string,
+    maintainerAddress: string,
+  ): Promise<ClaimTransactionResponse> {
+    const transactionXdr = await stellarService.createClaimPayoutTransaction(
+      orgId,
+      maintainerAddress,
+    );
     return { transactionXdr };
   },
 
   /**
    * Submit a signed transaction to the Stellar network.
    */
-  async submitTransaction(signedTransaction: string): Promise<SubmitTransactionResponse> {
+  async submitTransaction(
+    signedTransaction: string,
+  ): Promise<SubmitTransactionResponse> {
     const result = await stellarService.submitTransaction(signedTransaction);
     return {
       success: result.success,
