@@ -42,14 +42,26 @@ function DashboardPageInner() {
   const [showAllocateModal, setShowAllocateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "settings">("overview");
   
-  const [optimisticBalances, addOptimisticBalance] = useOptimistic(
+  type OptimisticAction =
+    | { type: "allocate"; address: string; amount: bigint }
+    | { type: "claim"; address: string };
+
+  const [optimisticBalances, dispatchOptimisticBalance] = useOptimistic(
     balances,
-    (state, newAlloc: { address: string; amount: bigint }) => {
-      const existingIndex = state.findIndex(b => b.address === newAlloc.address);
+    (state, action: OptimisticAction) => {
+      if (action.type === "claim") {
+        return state.map((b) =>
+          b.address === action.address
+            ? { ...b, stroops: BigInt(0), xlm: "0.0000000", isPending: true }
+            : b
+        );
+      }
+
+      const existingIndex = state.findIndex(b => b.address === action.address);
       if (existingIndex !== -1) {
         const newState = [...state];
         const current = newState[existingIndex]!;
-        const newStroops = current.stroops + newAlloc.amount;
+        const newStroops = current.stroops + action.amount;
         newState[existingIndex] = {
           ...current,
           stroops: newStroops,
@@ -61,9 +73,9 @@ function DashboardPageInner() {
         return [
           ...state,
           {
-            address: newAlloc.address,
-            stroops: newAlloc.amount,
-            xlm: (Number(newAlloc.amount) / 10_000_000).toFixed(7),
+            address: action.address,
+            stroops: action.amount,
+            xlm: (Number(action.amount) / 10_000_000).toFixed(7),
             isPending: true,
           },
         ];
@@ -135,10 +147,20 @@ function DashboardPageInner() {
     try {
       const unsignedXdr = await buildClaimPayoutTransaction(address);
       const signedXdr = await signTransaction(unsignedXdr);
+
+      // Optimistically zero out the balance right after signing, before
+      // waiting for full on-chain confirmation.
+      startTransition(() => {
+        dispatchOptimisticBalance({ type: "claim", address });
+      });
+
       await submitSignedTransaction(signedXdr);
       void handleLookupOrg();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Claim failed");
+      // Reconcile immediately — don't leave a phantom zeroed balance if the
+      // submission actually failed after the optimistic update fired.
+      void handleLookupOrg();
     } finally {
       setClaimingAddress(null);
     }
@@ -429,12 +451,13 @@ function DashboardPageInner() {
           onClose={() => setShowAllocateModal(false)}
           onSuccess={(data) => {
             startTransition(() => {
-              addOptimisticBalance(data);
+              dispatchOptimisticBalance({ type: "allocate", ...data });
             });
             // The modal itself handles the transaction submission
             // and we'll eventually refresh data when confirmed.
-            setTimeout(() => void handleLookupOrg(), 5000); 
+            setTimeout(() => void handleLookupOrg(), 5000);
           }}
+          onError={() => void handleLookupOrg()}
         />
         </ErrorBoundary>
       )}
