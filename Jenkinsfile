@@ -7,6 +7,7 @@ pipeline {
         TF_VERSION = '1.9.0'
         AWS_DEFAULT_REGION = 'us-east-1'
         TERRAFORM_DIR = 'terraform'
+        DOCKER_IMAGE = 'very-prince-backend'
     }
 
     options {
@@ -22,9 +23,37 @@ pipeline {
                     if (isUnix()) {
                         sh 'terraform -version'
                         sh 'aws --version'
+                        sh 'docker --version'
+                        sh 'trivy --version'
                     } else {
                         bat 'terraform.exe -version'
                         bat 'aws --version'
+                        bat 'docker --version'
+                        bat 'trivy --version'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker build --file packages/backend/Dockerfile --tag $DOCKER_IMAGE:$BUILD_NUMBER .'
+                    } else {
+                        bat 'docker build --file packages\\backend\\Dockerfile --tag %DOCKER_IMAGE%:%BUILD_NUMBER% .'
+                    }
+                }
+            }
+        }
+
+        stage('Scan Docker Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_IMAGE:$BUILD_NUMBER'
+                    } else {
+                        bat 'trivy image --exit-code 1 --severity HIGH,CRITICAL %DOCKER_IMAGE%:%BUILD_NUMBER%'
                     }
                 }
             }

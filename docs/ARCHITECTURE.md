@@ -26,7 +26,10 @@ flowchart TD
         State["Terraform State\nS3 + DynamoDB"]
     end
     
-    Jenkins["Jenkins Pipeline"] -->|terraform apply| State
+    Jenkins["Jenkins Pipeline\nBuild → Trivy scan → Terraform"] -->|terraform apply| State
+    Jenkins -->|docker build| Image["Backend image\nvery-prince-backend:$BUILD_NUMBER"]
+    Image -->|Trivy: fail on HIGH/CRITICAL CVEs| SecurityGate{"Security gate"}
+    SecurityGate -->|pass| Service
     Browser["Browser"] -->|HTTPS /_next/static/*| CDN["CloudFront\nGlobal edge network"]
     CDN -->|OAC SigV4| Assets["Private S3 asset bucket\n_next/static/* only"]
     Service -->|awslogs driver| CWLogs
@@ -86,11 +89,14 @@ flowchart TD
 4. SNS delivers to email subscribers (and any HTTPS/Lambda endpoints added manually)
 5. Dashboard visualizes all metrics in single pane
 6. Browser requests for `/_next/static/*` are served from the nearest CloudFront edge; cache misses are signed and fetched from the private S3 origin.
+7. Jenkins builds `packages/backend/Dockerfile` as `very-prince-backend:$BUILD_NUMBER` and scans that exact local image with Trivy before Terraform can apply changes.
 
 ## Jenkins Pipeline (`Jenkinsfile`)
 - Declarative syntax
-- Stages: Setup → Init → Validate → Plan → Apply (gated)
-- OS detection: `isUnix()` → `sh` on Linux, `bat` on Windows
+- Stages: Setup → Build Docker Image → Scan Docker Image → Init → Validate → Plan → Apply (gated)
+- The image build uses `packages/backend/Dockerfile` and is tagged `very-prince-backend:$BUILD_NUMBER`.
+- Trivy runs `trivy image --exit-code 1 --severity HIGH,CRITICAL` against the compiled image. Any High or Critical CVE makes the scan command return a non-zero status, stopping the pipeline before Terraform apply/deployment.
+- OS detection: `isUnix()` → `sh` on Linux, `bat` on Windows. Jenkins agents require native Docker and Trivy CLIs on their `PATH`.
 - Artifact: `tfplan` passed between Plan/Apply
 
 ## Windows Support
